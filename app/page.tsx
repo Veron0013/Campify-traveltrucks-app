@@ -1,9 +1,4 @@
 import { Metadata } from 'next';
-import Image from 'next/image';
-import { Button } from './components/Button/Button';
-import { FEATURES_CONFIG, FORM_CONFIG } from './types/filter.types';
-import { FilterButton } from './components/Filter/FilterButton';
-import { CamperForm } from './services/api/api.types';
 import Hero from './components/Hero/Hero';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';

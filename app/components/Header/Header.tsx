@@ -2,6 +2,7 @@ import Link from 'next/link';
 import React from 'react';
 
 import css from './Header.module.css';
+import IconComponent from '../Icon/Icon.component';
 
 function Header() {
   return (
@@ -21,6 +22,11 @@ function Header() {
             </li>
             <li>
               <Link href="/catalog">Catalog</Link>
+            </li>
+            <li>
+              <Link href="/favorites">
+                <IconComponent name="heart-filled" size={20} />
+              </Link>
             </li>
           </ul>
           <div className={css.right}></div>

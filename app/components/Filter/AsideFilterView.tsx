@@ -11,65 +11,60 @@ import LocationBlock from './LocationBlock';
 function AsideFilterView() {
   const filters = useCamperFilters(s => s.filters);
   const setFilter = useCamperFilters(s => s.setFilter);
+  const clearFilters = useCamperFilters(s => s.clearFilters);
 
   return (
     <aside className={css.aside}>
-      {/* ---- Location ---- */}
-      <div className={css.block}>
-        <h3 className={css.blockTitle}>Location</h3>
+      <h3 className={css.locationTitle}>Location</h3>
+      <LocationBlock />
 
-        <LocationBlock />
-      </div>
+      <div className={css.filters}>
+        <h3 className={css.sectionTitle}>Filters</h3>
 
-      {/* ---- Filters title ---- */}
-      <h3 className={css.sectionTitle}>Filters</h3>
+        <div className={css.block}>
+          <h4 className={css.blockTitle}>Vehicle equipment</h4>
+          <div className={css.divider}></div>
 
-      {/* ---- Vehicle equipment ---- */}
-      <div className={css.block}>
-        <h4 className={css.blockTitle}>Vehicle equipment</h4>
-        <div className={css.divider}></div>
+          <div className={css.grid}>
+            {(Object.entries(FEATURES_CONFIG) as [FeatureKey, FeatureConfig][]).map(([key, cfg]) => {
+              if (cfg.values) return null;
 
-        <div className={css.grid}>
-          {(Object.entries(FEATURES_CONFIG) as [FeatureKey, FeatureConfig][]).map(([key, cfg]) => {
-            if (cfg.values) return null; // skip form, not in this section
+              return (
+                <FilterButton
+                  key={key}
+                  icon={cfg.icon!}
+                  label={cfg.label}
+                  active={!!filters[key]}
+                  onClick={() => setFilter(key, !filters[key])}
+                />
+              );
+            })}
+          </div>
+        </div>
 
-            return (
-              <FilterButton
-                key={key}
-                icon={cfg.icon!}
-                label={cfg.label}
-                active={!!filters[key]}
-                onClick={() => setFilter(key, !filters[key])}
-              />
-            );
-          })}
+        <div className={css.block}>
+          <h4 className={css.blockTitle}>Vehicle type</h4>
+          <div className={css.divider}></div>
+
+          <div className={css.grid}>
+            {FEATURES_CONFIG.form.values!.map(value => {
+              const v = value as CamperForm;
+              const cfg = FORM_CONFIG[v];
+
+              return (
+                <FilterButton
+                  key={value}
+                  icon={cfg.icon}
+                  label={cfg.label}
+                  active={filters.form === value}
+                  onClick={() => setFilter('form', value)}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
-
-      {/* ---- Vehicle type ---- */}
-      <div className={css.block}>
-        <h4 className={css.blockTitle}>Vehicle type</h4>
-        <div className={css.divider}></div>
-
-        <div className={css.grid}>
-          {FEATURES_CONFIG.form.values!.map(value => {
-            const v = value as CamperForm;
-            const cfg = FORM_CONFIG[v];
-
-            return (
-              <FilterButton
-                key={value}
-                icon={cfg.icon}
-                label={cfg.label}
-                active={filters.form === value}
-                onClick={() => setFilter('form', value)}
-              />
-            );
-          })}
-        </div>
-      </div>
-
-      <Button type="button" label="Search" variant="primary" onClick={() => {}} />
+      <Button type="button" label="Clear filters" variant="loadMore" onClick={clearFilters} />
     </aside>
   );
 }

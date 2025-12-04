@@ -2,6 +2,6 @@
 	display: flex;
 	flex-direction: column;
 	gap: 32;
-	max-width: 888px;
+	min-width: 100%;
 	margin-bottom: 40px;
 }

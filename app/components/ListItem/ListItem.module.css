@@ -27,7 +27,7 @@
 .cardBottom {
 	display: flex;
 	flex-direction: column;
-	flex: 1 1 auto;
+	flex: 1;
 	min-width: 0;
 }
 
@@ -133,4 +133,9 @@
 	flex-wrap: wrap;
 	gap: 8px;
 	margin-bottom: 24px;
+}
+
+.cardActions {
+	margin-top: auto;
+	display: flex;
 }

@@ -1,13 +1,18 @@
-import { CamperFilterData, CamperForm, EngineType, Transmission } from '../services/api/api.types';
+import { CamperFeatureData, CamperForm, EngineType, Transmission } from '../services/api/api.types';
 
 export type EnumFeatureKey = 'transmission' | 'engine' | 'form';
 
-export type FeatureKey = keyof CamperFilterData;
+export type FeatureKey = keyof CamperFeatureData;
 
 export interface FeatureConfig {
   label: string;
   icon?: string | null;
   values?: string[];
+}
+export interface CardFeatureConfig {
+  key: keyof CamperFeatureData;
+  icon: string;
+  label: (value: string) => string;
 }
 
 export const FORM_CONFIG: Record<CamperForm, { label: string; icon: string }> = {
@@ -45,8 +50,8 @@ export const FEATURES_CONFIG: Record<FeatureKey, FeatureConfig> = {
     values: Object.values(CamperForm),
   },
 
-  // BOOLEAN FIELDS
-  location: { label: 'Location', icon: 'location' },
+  //// BOOLEAN FIELDS
+  //location: { label: 'Location', icon: 'location' },
 
   AC: { label: 'AC', icon: 'ac' },
   bathroom: { label: 'Bathroom', icon: 'bathroom' },
@@ -58,3 +63,37 @@ export const FEATURES_CONFIG: Record<FeatureKey, FeatureConfig> = {
   gas: { label: 'Gas', icon: 'gas' },
   water: { label: 'Water', icon: 'water' },
 };
+
+const formatLabel = (value: string): string =>
+  value
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+export const CARD_FEATURES_CONFIG: CardFeatureConfig[] = [
+  {
+    key: 'transmission',
+    icon: 'automatic',
+    label: v => formatLabel(v),
+  },
+  {
+    key: 'engine',
+    icon: 'diesel',
+    label: v => formatLabel(v),
+  },
+  {
+    key: 'form',
+    icon: 'alcove',
+    label: v => formatLabel(v),
+  },
+
+  { key: 'AC', icon: 'ac', label: () => 'AC' },
+  { key: 'bathroom', icon: 'bathroom', label: () => 'Bathroom' },
+  { key: 'kitchen', icon: 'kitchen', label: () => 'Kitchen' },
+  { key: 'TV', icon: 'tv', label: () => 'TV' },
+  { key: 'radio', icon: 'radio', label: () => 'Radio' },
+  { key: 'refrigerator', icon: 'refrigerator', label: () => 'Refrigerator' },
+  { key: 'microwave', icon: 'microwave', label: () => 'Microwave' },
+  { key: 'gas', icon: 'gas', label: () => 'Gas' },
+  { key: 'water', icon: 'water', label: () => 'Water' },
+];
