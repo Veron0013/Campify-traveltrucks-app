@@ -5,6 +5,10 @@ import type { CamperData } from '../services/api/api.types';
 interface CampersStore {
   campers: CamperData[];
   visibleCount: number;
+  isPaginationLoading: boolean;
+
+  startLoading: () => void;
+  finishLoading: () => void;
 
   resetResults: () => void;
   setCampers: (list: CamperData[]) => void;
@@ -16,6 +20,10 @@ export const useCampersStore = create<CampersStore>()(
     set => ({
       campers: [],
       visibleCount: 3,
+      isPaginationLoading: false,
+
+      startLoading: () => set({ isPaginationLoading: true }),
+      finishLoading: () => set({ isPaginationLoading: false }),
 
       resetResults: () =>
         set({

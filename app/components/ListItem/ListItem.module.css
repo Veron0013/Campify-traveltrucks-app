@@ -112,7 +112,7 @@
 	width: 40%;
 	height: 24px;
 	pointer-events: none;
-	background: linear-gradient(to right, transparent, #fff);
+	background: linear-gradient(to right, transparent, var(--background));
 }
 
 .description {

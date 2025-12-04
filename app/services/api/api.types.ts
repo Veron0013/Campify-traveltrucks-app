@@ -10,11 +10,7 @@ export enum EngineType {
   HYBRID = 'hybrid',
 }
 
-export enum CamperForm {
-  ALCOVE = 'alcove',
-  INTEGRATED = 'integrated',
-  VAN = 'van',
-}
+export type CamperForm = 'alcove' | 'fullyIntegrated' | 'panelTruck';
 
 export interface GalleryImage {
   thumb: string;

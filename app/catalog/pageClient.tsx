@@ -19,19 +19,21 @@ function CatalogClientPage() {
   const resetResults = useCampersStore(s => s.resetResults);
   const setCampers = useCampersStore(s => s.setCampers);
 
-  const { campers, visibleCount, showMore } = useCampersStore();
+  const { campers, visibleCount, showMore, startLoading, finishLoading } = useCampersStore();
 
   const visibleCampers = campers.slice(0, visibleCount);
 
   const { data, isLoading } = useQuery({
     queryKey: ['TrackListFiltered', filters],
     queryFn: async () => {
+      startLoading();
       resetResults();
 
       const res = await getCatalogList(filters);
       if (!res) toastMessage(MyToastType.error, 'bad request');
 
       setCampers(res.items);
+      finishLoading();
       return res;
     },
     refetchOnMount: false,

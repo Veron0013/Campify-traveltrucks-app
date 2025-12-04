@@ -12,10 +12,20 @@ export default function LocationBlock() {
 
   const [inputValue, setInputValue] = useState(location || '');
 
+  useEffect(() => {
+    const setInputData = async () => {
+      setInputValue(location || '');
+    };
+    setInputData();
+  }, [location]);
+
   const debouncedValue = useDebounce(inputValue, 500);
 
   useEffect(() => {
-    if (!debouncedValue) return;
+    if (debouncedValue === '') {
+      setFilter('location', '');
+      return;
+    }
     setFilter('location', debouncedValue.trim());
   }, [debouncedValue, setFilter]);
 

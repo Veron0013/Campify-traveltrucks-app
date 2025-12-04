@@ -4,7 +4,7 @@ import Link from 'next/link';
 import css from './ListItem.module.css';
 import IconComponent from '../Icon/Icon.component';
 import { Button } from '../Button/Button';
-import { CARD_FEATURES_CONFIG, FeatureConfig, FeatureKey, FEATURES_CONFIG } from '@/app/types/filter.types';
+import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
 import { FeatureTag } from '../FeatureTag/FeatureTag';
 import { useFavoritesStore } from '@/app/stores/campersFavoritesStore';
 
@@ -62,7 +62,7 @@ function ListItem({ item }: ItemProps) {
 
         <div className={css.features}>
           {CARD_FEATURES_CONFIG.filter(f => item[f.key] !== undefined && item[f.key] !== false).map(f => (
-            <FeatureTag key={f.key} icon={f.icon} label={f.label(item[f.key])} />
+            <FeatureTag key={f.key} icon={f.icon(item[f.key] as never)} label={f.label(item[f.key] as never)} />
           ))}
         </div>
 
