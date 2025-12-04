@@ -13,7 +13,7 @@ interface CampersStore {
 
 export const useCampersStore = create<CampersStore>()(
   persist(
-    (set, get) => ({
+    set => ({
       campers: [],
       visibleCount: 3,
 
