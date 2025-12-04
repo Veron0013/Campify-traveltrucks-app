@@ -90,4 +90,6 @@ export interface CamperFilterData {
   microwave?: boolean;
   gas?: boolean;
   water?: boolean;
+  limit?: number;
+  page?: number;
 }

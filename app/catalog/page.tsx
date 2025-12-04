@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-function page() {
+function CatalogPage() {
   return (
     <div>
       <CatalogClientPage />
@@ -37,4 +37,4 @@ function page() {
   );
 }
 
-export default page;
+export default CatalogPage;

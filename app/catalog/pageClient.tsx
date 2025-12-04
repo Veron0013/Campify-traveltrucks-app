@@ -2,60 +2,81 @@
 
 import { getCatalogList } from '../services/api/api.services';
 import toastMessage, { MyToastType } from '../services/messageService';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
 import Loading from '../loading';
 import ListView from '../components/ListView/ListView';
 import AsideFilterView from '../components/Filter/AsideFilterView';
 import { useCamperFilters } from '../stores/camperFiltersStore';
-import { useCampersStore } from '../stores/campersListStore';
 import { Button } from '../components/Button/Button';
 import css from './pageClient.module.css';
+import { useEffect, useState } from 'react';
+import { CamperData } from '../services/api/api.types';
+import { LIMIT } from '../lib/vars';
 
 function CatalogClientPage() {
   const filters = useCamperFilters(s => s.filters);
   const clearFilters = useCamperFilters(s => s.clearFilters);
 
-  const resetResults = useCampersStore(s => s.resetResults);
-  const setCampers = useCampersStore(s => s.setCampers);
+  const [page, setPage] = useState(1);
+  const [campers, setAllCampers] = useState<CamperData[]>([]);
 
-  const { campers, visibleCount, showMore, startLoading, finishLoading } = useCampersStore();
-
-  const visibleCampers = campers.slice(0, visibleCount);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['TrackListFiltered', filters],
+  const { data, isFetching } = useQuery({
+    queryKey: ['TrackListFiltered', filters, page],
     queryFn: async () => {
-      startLoading();
-      resetResults();
-
-      const res = await getCatalogList(filters);
+      const res = await getCatalogList({ ...filters, page, limit: LIMIT });
       if (!res) toastMessage(MyToastType.error, 'bad request');
-
-      setCampers(res.items);
-      finishLoading();
       return res;
     },
     refetchOnMount: false,
+    placeholderData: keepPreviousData,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!data) {
+        setAllCampers([]);
+        return;
+      }
+
+      if (page === 1) {
+        setAllCampers(data.items);
+      } else {
+        //bad indexes
+        setAllCampers(prev => {
+          const merged = [...prev, ...data.items];
+          const unique = merged.filter((camper, index, self) => index === self.findIndex(c => c.id === camper.id));
+          return unique;
+        });
+      }
+    };
+    fetchData();
+  }, [data, page]);
+
+  useEffect(() => {
+    const fetchPages = async () => {
+      setPage(1);
+    };
+    fetchPages();
+  }, [filters]);
 
   return (
     <section className="container">
       <div className={css.pageLayout}>
         <AsideFilterView />
         <div className={css.pageContainer}>
-          {!isLoading && campers.length === 0 && (
+          {!isFetching && campers.length === 0 && (
             <MessageNoInfo
               buttonText="Clear filters"
               text="No campers found. Try to clear filters."
               onClick={clearFilters}
             />
           )}
-          {data && data?.items.length > 0 && <ListView items={visibleCampers} />}
+          {campers && campers.length > 0 && <ListView items={campers} />}
 
-          {isLoading && <Loading />}
-          {visibleCount < campers.length && (
-            <Button type="button" label="Load more" variant="loadMore" onClick={() => showMore()} />
+          {isFetching && <Loading />}
+          {data && campers.length < data?.total && (
+            <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
           )}
         </div>
       </div>
