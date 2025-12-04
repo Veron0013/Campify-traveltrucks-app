@@ -39,21 +39,23 @@ function CatalogClientPage() {
 
   return (
     <section className="container">
-      <AsideFilterView />
-      <div className={css.pageContainer}>
-        {!isLoading && campers.length === 0 && (
-          <MessageNoInfo
-            buttonText="Clear filters"
-            text="No campers found. Try to clear filters."
-            onClick={clearFilters}
-          />
-        )}
-        {data && data?.items.length > 0 && <ListView items={visibleCampers} />}
+      <div className={css.pageLayout}>
+        <AsideFilterView />
+        <div className={css.pageContainer}>
+          {!isLoading && campers.length === 0 && (
+            <MessageNoInfo
+              buttonText="Clear filters"
+              text="No campers found. Try to clear filters."
+              onClick={clearFilters}
+            />
+          )}
+          {data && data?.items.length > 0 && <ListView items={visibleCampers} />}
 
-        {isLoading && <Loading />}
-        {visibleCount < campers.length && (
-          <Button type="button" label="Load more" variant="loadMore" onClick={() => showMore()} />
-        )}
+          {isLoading && <Loading />}
+          {visibleCount < campers.length && (
+            <Button type="button" label="Load more" variant="loadMore" onClick={() => showMore()} />
+          )}
+        </div>
       </div>
     </section>
   );

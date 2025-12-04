@@ -1,4 +1,40 @@
 .aside {
-	max-width: 360px;
+	/*width: 280px;*/
+	flex-shrink: 0;
+	position: sticky;
+	top: 20px;
+	height: fit-content;
 	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.block {
+	margin-bottom: 32px;
+}
+
+.blockTitle {
+	font-size: 20px;
+	font-weight: 600;
+	margin-bottom: 12px;
+	color: #101828;
+}
+
+.sectionTitle {
+	font-size: 18px;
+	font-weight: 600;
+	margin-bottom: 16px;
+	color: #101828;
+}
+
+.divider {
+	height: 1px;
+	background: #e5e7eb;
+	margin: 12px 0 20px 0;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
 }
