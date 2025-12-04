@@ -1,15 +1,22 @@
 .header {
-  background-color: var(--color-white);
+  background-color: var(--color-gray-soft);
   color: var(--color-primary-dark);
 }
 
 
 .header_container {
+  padding: 24px 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex: 1;
+}
 
 .styles {
   color: var(--color-primary);
@@ -17,10 +24,16 @@
 
 .nav_list {
   display: flex;
-  gap: 28px;
+  justify-content: center;
+  gap: 32px;
   list-style: none;
+  flex: 1;
   margin: 0;
   padding: 0;
+}
+
+.right {
+  flex: 1;
 }
 
 .nav_list_item_link,
@@ -34,10 +47,10 @@
 
 .nav_list_item_link:hover,
 .nav_list li a:hover {
-  color: var(--color-primary-dark);
+  color: var(--color-button-hover);
 }
 
 .nav_active {
-  color: var(--color-primary-dark);
+  color: var(--color-button-hover);
   font-weight: 600;
 }

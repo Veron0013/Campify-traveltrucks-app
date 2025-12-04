@@ -1,0 +1,32 @@
+.hero {
+	width: 100%;
+	height: calc(100vh - 72px);
+	background-image: image-set(url('/img/hero@1.webp') 1x,
+			url('/img/hero@2.webp') 2x);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	overflow: hidden;
+
+	display: flex;
+	align-items: center;
+}
+
+.title_wrapper {
+	margin-bottom: 40px;
+}
+
+.title {
+	font-weight: 600;
+	font-size: 48px;
+	line-height: 67%;
+	padding-bottom: 16px;
+	color: var(--color-white);
+}
+
+.hero_text {
+	font-weight: 600;
+	font-size: 24px;
+	line-height: 133%;
+	color: var(--color-white);
+}

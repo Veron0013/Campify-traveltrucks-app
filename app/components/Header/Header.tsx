@@ -8,9 +8,11 @@ function Header() {
     <header className={css.header}>
       <div className="container">
         <div className={css.header_container}>
-          <h2>
-            Travel<span className={css.styles}>Trucks</span>
-          </h2>
+          <Link href={'/'} className={css.logo}>
+            <svg width="136" height="16" aria-hidden="true">
+              <use href="/icons/logo.svg"></use>
+            </svg>
+          </Link>
           <ul className={css.nav_list}>
             <li className={css.nav_list_item}>
               <Link className={css.nav_list_item_link} href="/">
@@ -21,6 +23,7 @@ function Header() {
               <Link href="/catalog">Catalog</Link>
             </li>
           </ul>
+          <div className={css.right}></div>
         </div>
       </div>
     </header>

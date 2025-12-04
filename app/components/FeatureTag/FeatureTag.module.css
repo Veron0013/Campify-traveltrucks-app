@@ -1,0 +1,9 @@
+.tag {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 12px 16px;
+	background: var(--color-gray-lighter);
+	border-radius: 20px;
+	font-size: 16px;
+}

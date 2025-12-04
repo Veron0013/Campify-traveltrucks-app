@@ -10,6 +10,12 @@ export enum EngineType {
   HYBRID = 'hybrid',
 }
 
+export enum CamperForm {
+  ALCOVE = 'alcove',
+  INTEGRATED = 'integrated',
+  VAN = 'van',
+}
+
 export interface GalleryImage {
   thumb: string;
   original: string;
@@ -57,4 +63,35 @@ export interface CamperData {
   water: boolean;
   gallery: GalleryImage[];
   reviews: CamperReview[];
+}
+
+export interface CamperFeatureData {
+  form?: string;
+  transmission?: Transmission;
+  engine?: EngineType;
+  AC?: boolean;
+  bathroom?: boolean;
+  kitchen?: boolean;
+  TV?: boolean;
+  radio?: boolean;
+  refrigerator?: boolean;
+  microwave?: boolean;
+  gas?: boolean;
+  water?: boolean;
+}
+
+export interface CamperFilterData {
+  location?: string;
+  form?: string;
+  transmission?: Transmission;
+  engine?: EngineType;
+  AC?: boolean;
+  bathroom?: boolean;
+  kitchen?: boolean;
+  TV?: boolean;
+  radio?: boolean;
+  refrigerator?: boolean;
+  microwave?: boolean;
+  gas?: boolean;
+  water?: boolean;
 }
