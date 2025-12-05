@@ -12,7 +12,7 @@ interface ItemProps {
   item: CamperData;
 }
 
-function ListItem({ item }: ItemProps) {
+function ListItemDetails({ item }: ItemProps) {
   const { toggleFavorite, isFavorite } = useFavoritesStore();
 
   return (
@@ -46,7 +46,8 @@ function ListItem({ item }: ItemProps) {
         <div className={css.metaRow} role="group" aria-label="Rating and location">
           <div className={css.itemRates}>
             <IconComponent name="star-filled" size={20} />
-            <span className={css.metaStat}>{`${item.rating ?? 0}(${item.reviews.length ?? 0} Reviews)`}</span>
+            <span className={css.metaStat}>{item.rating ?? 0}</span>
+            <span className={css.metaStat}>{`(${item.reviews.length ?? 0} Reviews)`}</span>
           </div>
 
           <div className={css.itemLocation}>
@@ -73,4 +74,4 @@ function ListItem({ item }: ItemProps) {
   );
 }
 
-export default ListItem;
+export default ListItemDetails;

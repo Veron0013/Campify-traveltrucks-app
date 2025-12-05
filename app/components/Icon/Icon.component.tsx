@@ -5,7 +5,7 @@ interface IconProps {
   onClick?: () => void;
 }
 export function IconComponent({ name, size = 20, isMap, onClick }: IconProps) {
-  const href = isMap ? `icons/map.svg` : `icons/icons.svg#${name}`;
+  const href = isMap ? `/icons/map.svg` : `/icons/icons.svg#${name}`;
 
   return (
     <svg
