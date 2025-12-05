@@ -1,25 +1,33 @@
+import { getCamperById } from '@/app/services/api/api.services';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { Metadata } from 'next';
-import React from 'react';
+import CamperDetailsClient from './pageClient';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 type PageProps = {
-  params: { id: string };
+  params: Promise<{ lang: string; id: string }>;
 };
 
-// 🧠 Базовий робочий варіант (без запиту, але вже динамічний по URL)
+async function fetchCamper(id: string, queryClient?: QueryClient) {
+  const camper = await getCamperById(id);
+
+  if (queryClient) {
+    await queryClient.prefetchQuery({
+      queryKey: ['CamperById', id],
+      queryFn: () => Promise.resolve(camper),
+    });
+  }
+
+  return camper;
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
+  const camper = await fetchCamper(id);
 
-  // 🔽 Коли додаси запит — розкоментуєш / заміниш це на реальні дані
-  // const camper = await getCamperById(id);
-  // const title = `${camper.name} — Campify: Travel Trucks`;
-  // const description = camper.description;
-  // const image = camper.gallery?.[0]?.original;
-
-  const title = 'Camper details — Campify: Travel Trucks';
-  const description =
-    'View detailed information, features, reviews and booking options for this camper on Campify: Travel Trucks.';
+  const title = camper.name ? `Campify: ${camper.name}` : 'Campify: camper details';
+  const description = camper.description ? camper.description : 'About camper';
 
   return {
     title,
@@ -33,21 +41,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `${SITE_URL}/catalog/${id}`,
       siteName: 'Campify: Travel Trucks',
       type: 'article',
-      // 🧠 Потім підставиш camper.gallery[0].original
-      // images: image
-      //   ? [
-      //       {
-      //         url: image,
-      //         width: 1200,
-      //         height: 630,
-      //         alt: camper.name,
-      //       },
-      //     ]
-      //   : undefined,
+      images: camper.gallery[0].original
+        ? [
+            {
+              url: camper.gallery[0].original,
+              width: 1200,
+              height: 630,
+              alt: camper.name,
+            },
+          ]
+        : undefined,
     },
   };
 }
 
-export default function page() {
-  return <div>Page-id</div>;
+async function CamperPage({ params }: PageProps) {
+  const { id } = await params;
+  const queryClient = new QueryClient();
+
+  await fetchCamper(id, queryClient);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CamperDetailsClient />
+    </HydrationBoundary>
+  );
 }
+
+export default CamperPage;

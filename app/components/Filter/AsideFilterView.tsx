@@ -7,14 +7,17 @@ import FilterButton from './FilterButton';
 import { useCamperFilters } from '@/app/stores/camperFiltersStore';
 import { Button } from '../Button/Button';
 import LocationBlock from './LocationBlock';
-import { useCampersStore } from '@/app/stores/campersListStore';
 
-function AsideFilterView() {
+interface Props {
+  total: number;
+  shown: number;
+  isFetching: boolean;
+}
+
+function AsideFilterView({ shown, total, isFetching }: Props) {
   const filters = useCamperFilters(s => s.filters);
   const setFilter = useCamperFilters(s => s.setFilter);
   const clearFilters = useCamperFilters(s => s.clearFilters);
-
-  const { campers, visibleCount, isPaginationLoading } = useCampersStore();
 
   return (
     <aside className={css.aside}>
@@ -22,12 +25,10 @@ function AsideFilterView() {
       <LocationBlock />
 
       <div className={css.filters}>
-        {isPaginationLoading ? (
+        {isFetching ? (
           <h3 className={css.sectionTitle}>Filters: </h3>
         ) : (
-          <h3 className={css.sectionTitle}>
-            {`Filters: shown ${Math.min(visibleCount, campers.length)} from ${campers.length}`}
-          </h3>
+          <h3 className={css.sectionTitle}>{`Filters: result ${shown} from ${total}`}</h3>
         )}
 
         <div className={css.block}>

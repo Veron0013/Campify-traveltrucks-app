@@ -4,7 +4,7 @@
 
 .wrapper {
 	position: fixed;
-	top: 120px;
+	top: 150px;
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 9999;
@@ -18,9 +18,9 @@
 	padding: 12px 16px;
 	border-radius: 6px;
 	border: 1px solid transparent;
-	color: var(--color-neutral-darkest);
-	background-color: var(--color-deco);
-	border-color: var(--color-deco-lightest);
+	color: var(--color-primary);
+	background-color: var(--color-gray-lighter);
+	border-color: var(--background);
 	align-items: center;
 	justify-content: center;
 }

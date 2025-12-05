@@ -1,6 +1,6 @@
 'use client';
 
-import { getCatalogList } from '../services/api/api.services';
+import { getCamperList } from '../services/api/api.services';
 import toastMessage, { MyToastType } from '../services/messageService';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
@@ -12,7 +12,7 @@ import { Button } from '../components/Button/Button';
 import css from './pageClient.module.css';
 import { useEffect, useState } from 'react';
 import { CamperData } from '../services/api/api.types';
-import { LIMIT } from '../lib/vars';
+import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
 
 function CatalogClientPage() {
   const filters = useCamperFilters(s => s.filters);
@@ -21,10 +21,10 @@ function CatalogClientPage() {
   const [page, setPage] = useState(1);
   const [campers, setAllCampers] = useState<CamperData[]>([]);
 
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, isError } = useQuery({
     queryKey: ['TrackListFiltered', filters, page],
     queryFn: async () => {
-      const res = await getCatalogList({ ...filters, page, limit: LIMIT });
+      const res = await getCamperList({ ...filters, page, limit: LIMIT });
       if (!res) toastMessage(MyToastType.error, 'bad request');
       return res;
     },
@@ -60,10 +60,20 @@ function CatalogClientPage() {
     fetchPages();
   }, [filters]);
 
+  if (isError) {
+    return (
+      <div className="container">
+        <div className={css.pageLayout}>
+          <MessageNoInfo buttonText="Go back to Home page" text={ERROR_MAIN_MESSAGE} route="/" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="container">
       <div className={css.pageLayout}>
-        <AsideFilterView />
+        <AsideFilterView total={data?.total || 0} shown={campers.length} isFetching={isFetching} />
         <div className={css.pageContainer}>
           {!isFetching && campers.length === 0 && (
             <MessageNoInfo
