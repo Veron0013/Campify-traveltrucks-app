@@ -1,0 +1,25 @@
+.wrapper {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
+	background: var(--color-gray-soft);
+	border-radius: 14px;
+	padding: 14px 18px;
+
+	font-size: 16px;
+	color: var(--foreground);
+}
+
+.input {
+	border: none;
+	outline: none;
+	background: var(--color-gray-soft);
+	flex: 1;
+	font-size: 16px;
+	color: var(--foreground);
+}
+
+.input::placeholder {
+	color: var(--foreground);
+}

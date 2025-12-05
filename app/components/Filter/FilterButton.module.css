@@ -1,0 +1,36 @@
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 6px;
+  gap: 10px;
+
+  border: 1px solid var(--color-gray-light);
+  border-radius: 12px;
+  min-width: 112px;
+  height: 96px;
+
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--color-primary-dark);
+
+  background: var(--background);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  border-color: var(--color-primary);
+}
+
+.active {
+  border-color: var(--color-button);
+}
+
+/*.icon {
+  width: 20px;
+  height: 20px;
+}*/

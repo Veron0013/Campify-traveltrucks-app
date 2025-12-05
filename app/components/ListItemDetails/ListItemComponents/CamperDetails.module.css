@@ -1,0 +1,163 @@
+.header {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: start;
+  gap: 8px;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cardPrice {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+
+.itemRates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaStat {
+  position: relative;
+  display: inline-flex;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--foreground);
+}
+
+
+.metaStat::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 1;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.itemLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.locationText {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--foreground);
+}
+
+/*//////////////////////////////////*/
+/*gallery*/
+.listStyle {
+  display: grid;
+  gap: 48px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cardImgWrap {
+  position: relative;
+  width: 100%;
+  height: 312px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/*////////////////////////////////////////////////*/
+/*features*/
+.featuresBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 44px 52px;
+  background-color: var(--color-gray-soft);
+  min-width: 100%;
+  min-height: 631px;
+}
+
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.featuresDetails {
+  min-width: 100%;
+}
+
+.blockTitle {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--foreground);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-gray-light);
+  margin: 24px 0;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 12px;
+  column-gap: 24px;
+}
+
+.details dt {
+  color: #555;
+}
+
+.details dd {
+  text-align: right;
+  color: #000;
+}
+
+.row {
+  display: contents;
+}

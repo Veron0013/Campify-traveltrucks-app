@@ -1,0 +1,7 @@
+.listStyle {
+	display: flex;
+	flex-direction: column;
+	gap: 32;
+	min-width: 100%;
+	margin-bottom: 40px;
+}

@@ -1,0 +1,51 @@
+.aside {
+	max-width: 360px;
+	width: 100%;
+	flex-shrink: 0;
+	position: sticky;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.filters {
+	margin: 40px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.locationTitle {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary-light);
+	margin-bottom: 8px;
+}
+
+.sectionTitle {
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+}
+
+.blockTitle {
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 120%;
+	color: var(--foreground);
+}
+
+.divider {
+	height: 1px;
+	background: var(--color-gray-light);
+	margin: 24px 0;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+	row-gap: 8px;
+}

@@ -5,8 +5,8 @@
   --color-primary: #475467;
   --color-primary-light: #6c717b;
 
-  --color-danger: #e44848;
-  --color-danger-dark: #d84343;
+  --color-button: #e44848;
+  --color-button-hover: #d84343;
   --color-warning: #ffc531;
 
   --color-gray-light: #dadde1;
@@ -26,8 +26,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: var(--color-primary);
-    --foreground: var(--color-gray-light);
+    /*--background: var(--color-primary);
+    --foreground: var(--color-gray-light);*/
+    --background: var(--color-white);
+    --foreground: var(--color-primary-dark);
+
   }
 }
 
@@ -63,14 +66,23 @@ button {
   max-width: 375px;
   margin: 0 auto;
   padding: 0 20px;
+  overflow-y: hidden;
 }
 
-@media screen and (min-width: 768px) {
+.visually_hidden {
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+  visibility: hidden;
+  display: none;
+}
+
+/*@media screen and (min-width: 768px) {
   .container {
     max-width: 768px;
     padding: 0 32px;
   }
-}
+}*/
 
 @media screen and (min-width: 1440px) {
   .container {

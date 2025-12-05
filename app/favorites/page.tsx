@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { Metadata } from 'next';
-import CatalogClientPage from './pageClient';
+import FavoritesClientPage from './pageClient';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -29,12 +29,12 @@ export const metadata: Metadata = {
   },
 };
 
-function CatalogPage() {
+function page() {
   return (
     <div>
-      <CatalogClientPage />
+      <FavoritesClientPage />
     </div>
   );
 }
 
-export default CatalogPage;
+export default page;

@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
 import { Suspense } from 'react';
 import TanStackProvider from './components/TanStackProvider/TanStackProvider';
+import Header from './components/Header/Header';
 
 const interSans = Inter({
   variable: '--font-inter',
@@ -32,7 +33,10 @@ export default function RootLayout({
       <body className={`${interSans.variable} antialiased`}>
         <TanStackProvider>
           <div className="layout">
-            <Suspense fallback={<Loading />}>{children}</Suspense>
+            <Suspense fallback={<Loading />}>
+              <Header />
+              {children}
+            </Suspense>
           </div>
           <Toaster />
           <ReactQueryDevtools initialIsOpen={false} />
