@@ -6,7 +6,6 @@ import { format } from 'date-fns';
 import 'react-day-picker/dist/style.css';
 import css from './DatePickerField.module.css';
 import { SELECT_DATE } from '@/app/lib/vars';
-import { da } from 'react-day-picker/locale';
 
 interface Props {
   value: string;

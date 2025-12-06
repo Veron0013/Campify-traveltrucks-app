@@ -13,6 +13,8 @@
 # testing
 /coverage
 
+dump_files.py
+
 # next.js
 /.next/
 /out/
