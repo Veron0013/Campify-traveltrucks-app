@@ -1,4 +1,4 @@
-import { CamperForm, EngineType, Transmission } from '../services/api/api.types';
+import { EngineType, Transmission } from '../services/api/api.types';
 
 // ---- FORMATTER ----
 const formatLabel = (value: string): string =>
@@ -28,8 +28,8 @@ export type FeatureConfig = {
 };
 
 // ---- FORM CONFIG ----
-export const FORM_CONFIG: Record<CamperForm, { label: string; icon: string }> = {
-  alcove: { label: 'Alcove', icon: 'alcove' },
+export const FORM_CONFIG: Record<string, { label: string; icon: string }> = {
+  alcove: { label: 'Panel truck', icon: 'alcove' },
   fullyIntegrated: { label: 'Fully Integrated', icon: 'fullyIntegrated' },
   panelTruck: { label: 'Van', icon: 'panelTruck' },
 };
@@ -48,8 +48,8 @@ export const FILTERS_CONFIG: Record<FeatureKey, FeatureConfig> = Object.fromEntr
 export const CARD_FEATURES_CONFIG = [
   {
     key: 'form',
-    icon: (v: CamperForm) => FORM_CONFIG[v].icon,
-    label: (v: CamperForm) => FORM_CONFIG[v].label,
+    icon: (v: string) => FORM_CONFIG[v].icon,
+    label: (v: string) => FORM_CONFIG[v].label,
   },
   {
     key: 'engine',

@@ -1,13 +1,23 @@
 import { CamperData } from '@/app/services/api/api.types';
 import css from './CamperDetails.module.css';
-import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
+import { CARD_FEATURES_CONFIG, FORM_CONFIG } from '@/app/types/filter.types';
 import { FeatureTag } from '../../FeatureTag/FeatureTag';
+import MessageNoInfo from '../../MessageNoInfo/MessageNoInfo';
 
 interface Props {
   camper: CamperData;
 }
 
 function FeaturesList({ camper }: Props) {
+  const formInfo = FORM_CONFIG[camper.form].label;
+
+  const formatUnitValue = (value: string): string => {
+    return value.replace(/(\d)([a-zA-Z])/g, '$1 $2');
+  };
+
+  if (!camper)
+    return <MessageNoInfo buttonText="Home page" text="No fetures found. Maybe you can try later." route="/" />;
+
   return (
     <div className={css.featuresBlock}>
       <div className={css.features}>
@@ -21,27 +31,27 @@ function FeaturesList({ camper }: Props) {
         <dl className={css.details}>
           <div className={css.row}>
             <dt>Form</dt>
-            <dd>{camper.form}</dd>
+            <dd>{formInfo}</dd>
           </div>
 
           <div className={css.row}>
             <dt>Length</dt>
-            <dd>{camper.length}</dd>
+            <dd>{formatUnitValue(camper.length)}</dd>
           </div>
 
           <div className={css.row}>
             <dt>Width</dt>
-            <dd>{camper.width}</dd>
+            <dd>{formatUnitValue(camper.width)}</dd>
           </div>
 
           <div className={css.row}>
             <dt>Height</dt>
-            <dd>{camper.height}</dd>
+            <dd>{formatUnitValue(camper.height)}</dd>
           </div>
 
           <div className={css.row}>
             <dt>Tank</dt>
-            <dd>{camper.tank}</dd>
+            <dd>{formatUnitValue(camper.tank)}</dd>
           </div>
 
           <div className={css.row}>

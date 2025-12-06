@@ -51,6 +51,6 @@
 }
 
 .nav_active {
-  color: var(--color-button-hover);
+  color: var(--color-button-hover) !important;
   font-weight: 600;
 }

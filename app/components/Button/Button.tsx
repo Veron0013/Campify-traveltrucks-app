@@ -9,6 +9,7 @@ type BaseProps = {
   label: string;
   className?: string;
   variant?: ButtonVariant;
+  isDisabled?: boolean;
 };
 
 type ButtonProps =
@@ -31,14 +32,23 @@ export function Button(props: ButtonProps) {
 
   if (props.type === 'submit' || props.type === 'reset') {
     return (
-      <button type={props.type} className={`${styles.button} ${variantClass} ${className || ''}`}>
+      <button
+        disabled={props.isDisabled}
+        type={props.type}
+        className={`${styles.button} ${variantClass} ${className || ''}`}
+      >
         {label}
       </button>
     );
   }
 
   return (
-    <button type="button" onClick={props.onClick} className={`${styles.button} ${variantClass} ${className || ''}`}>
+    <button
+      disabled={props.isDisabled}
+      type="button"
+      onClick={props.onClick}
+      className={`${styles.button} ${variantClass} ${className || ''}`}
+    >
       {label}
     </button>
   );

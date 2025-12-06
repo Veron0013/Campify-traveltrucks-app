@@ -11,7 +11,7 @@
 	padding: 50px 0;
 	display: flex;
 	flex-direction: column;
-	gap: 64px;
+	gap: 44px;
 	align-items: flex-start;
 }
 
@@ -29,6 +29,7 @@
 	font-size: 16px;
 	line-height: 150%;
 	color: var(--color-primary);
+	margin-bottom: 16px;
 }
 
 .tabs {
@@ -63,10 +64,15 @@
 	border-radius: 2px;
 }
 
+.tabContent {
+	min-height: 100%;
+	height: 100%;
+}
 
 .bottomTabs {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr 640px;
 	gap: 40px;
+	width: 100%;
+	align-items: start;
 }

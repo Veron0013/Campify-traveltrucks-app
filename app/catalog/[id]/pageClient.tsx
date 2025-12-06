@@ -6,12 +6,12 @@ import { useParams } from 'next/navigation';
 import css from './pageClient.module.css';
 import Loading from '@/app/loading';
 import { ERROR_MAIN_MESSAGE } from '@/app/lib/vars';
-import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
-import { FeatureTag } from '@/app/components/FeatureTag/FeatureTag';
 import CamperHeader from '@/app/components/ListItemDetails/ListItemComponents/CamperHeader';
 import CamperGallery from '@/app/components/ListItemDetails/ListItemComponents/CamperGallery';
 import { useState } from 'react';
 import FeaturesList from '@/app/components/ListItemDetails/ListItemComponents/FeaturesList';
+import ReviewsList from '@/app/components/ListItemDetails/ListItemComponents/ReviewsList';
+import { BookingForm } from '@/app/components/ListItemDetails/ListItemComponents/BookingForm';
 
 function CamperDetailsClient() {
   const { id } = useParams<{ id: string }>();
@@ -71,10 +71,9 @@ function CamperDetailsClient() {
         <div className={css.bottomTabs}>
           <div className={css.tabContent}>
             {activeTab === 'features' && <FeaturesList camper={camper} />}
-            {/*{activeTab === 'reviews' && <ReviewsBlock />}*/}
+            {activeTab === 'reviews' && <ReviewsList reviews={camper.reviews} />}
           </div>
-          {/*<BookingForm />*/}
-          <FeaturesList camper={camper} />
+          <BookingForm camper={camper} />
         </div>
       </div>
     </section>
