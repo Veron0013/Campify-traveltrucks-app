@@ -76,3 +76,9 @@
 	width: 100%;
 	align-items: start;
 }
+
+@media (max-width: 768px) {
+	.bottomTabs {
+		grid-template-columns: 1fr;
+	}
+}

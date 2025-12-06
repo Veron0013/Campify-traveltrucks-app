@@ -18,10 +18,6 @@
   flex: 1;
 }
 
-.styles {
-  color: var(--color-primary);
-}
-
 .nav_list {
   display: flex;
   justify-content: center;
@@ -36,21 +32,18 @@
   flex: 1;
 }
 
-.nav_list_item_link,
-.nav_list li a {
+.nav_list_item_link {
   text-decoration: none;
   font-size: 16px;
   font-weight: 500;
   color: var(--foreground);
-  transition: color 0.2s ease;
+  transition: color 0.3s ease;
 }
 
-.nav_list_item_link:hover,
-.nav_list li a:hover {
+.nav_list_item_link:hover {
   color: var(--color-button-hover);
 }
 
 .nav_active {
-  color: var(--color-button-hover) !important;
-  font-weight: 600;
+  color: var(--color-button-hover);
 }

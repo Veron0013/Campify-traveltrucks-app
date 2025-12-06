@@ -17,7 +17,7 @@ const Loading = () => {
   return (
     <div className={css.wrapper}>
       <ScaleLoader
-        color="#17862c"
+        color="#475467"
         loading={true}
         cssOverride={override}
         //size={150}

@@ -1,0 +1,30 @@
+.footer {
+  padding: 24px 0;
+  border-top: 1px solid var(--color-gray-light);
+  background: var(--background);
+  margin-top: 14px;
+}
+
+.footerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+}
+
+.text {
+  font-size: 14px;
+  color: var(--color-primary-light);
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--color-primary-light);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.copyright:hover {
+  color: var(--color-button-hover);
+}

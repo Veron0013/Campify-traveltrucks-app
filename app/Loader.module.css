@@ -1,7 +1,3 @@
-/*.text {
-	padding-left: 40px;
-}*/
-
 .wrapper {
 	position: fixed;
 	top: 150px;
@@ -26,5 +22,5 @@
 }
 
 .text {
-	color: var(--color-neutral-darkest);
+	color: var(--foreground);
 }

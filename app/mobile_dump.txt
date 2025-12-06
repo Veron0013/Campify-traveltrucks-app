@@ -1,0 +1,6132 @@
+# Project dump
+# Root: D:\_github_repos\MyProjects\campify-traveltrucks-app\app
+
+
+================================================================================
+===== FILE: Loader.module.css =====
+================================================================================
+
+.wrapper {
+	position: fixed;
+	top: 150px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	font-size: 16px;
+	text-align: center;
+	max-width: 600px;
+	margin: 40px auto;
+	padding: 12px 16px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	color: var(--color-primary);
+	background-color: var(--color-gray-lighter);
+	border-color: var(--background);
+	align-items: center;
+	justify-content: center;
+}
+
+.text {
+	color: var(--foreground);
+}
+================================================================================
+===== FILE: NotFound.module.css =====
+================================================================================
+
+.NotFoundContainer {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    border-radius: 12px;
+    background-color: var(--color-scheme-1-background);
+    box-shadow: inset 17px 17px 48px #c2c7be,
+        inset -17px -17px 48px #ffffff;
+}
+
+.NotFoundTitle {
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.NotFoundImage {
+    width: 250px;
+    border-radius: 8px;
+}
+
+.NotFoundDescr {
+    font-size: 28px;
+    font-weight: 500;
+}
+
+.NotFoundText {
+    font-size: 18px;
+}
+
+.NotFoundLink {
+    text-align: center;
+    margin-top: 32px;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.1s ease;
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 150%;
+    color: var(--color-neutral-darkest);
+    border: 1px solid var(--color-deco);
+    border-radius: 100px;
+    padding: 6px 12px;
+    background-color: var(--color-deco);
+}
+
+.NotFoundLink:hover {
+    background-color: var(--color-deco-dark);
+    border: 1px solid var(--color-deco-darker);
+    transform: scale(1.03);
+}
+
+.NotFoundLink:active {
+    background-color: var(--color-deco-darkest);
+    border: 1px solid var(--color-deco);
+    transform: scale(1.03);
+}
+================================================================================
+===== FILE: catalog\[id]\page.tsx =====
+================================================================================
+
+import { getCamperById } from '@/app/services/api/api.services';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { Metadata } from 'next';
+import CamperDetailsClient from './pageClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+type PageProps = {
+  params: Promise<{ lang: string; id: string }>;
+};
+
+async function fetchCamper(id: string, queryClient?: QueryClient) {
+  const camper = await getCamperById(id);
+
+  if (queryClient) {
+    await queryClient.prefetchQuery({
+      queryKey: ['CamperById', id],
+      queryFn: () => Promise.resolve(camper),
+    });
+  }
+
+  return camper;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const camper = await fetchCamper(id);
+
+  const title = camper.name ? `Campify: ${camper.name}` : 'Campify: camper details';
+  const description = camper.description ? camper.description : 'About camper';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${SITE_URL}/catalog/${id}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/catalog/${id}`,
+      siteName: 'Campify: Travel Trucks',
+      type: 'article',
+      images: camper.gallery[0].original
+        ? [
+            {
+              url: camper.gallery[0].original,
+              width: 1200,
+              height: 630,
+              alt: camper.name,
+            },
+          ]
+        : undefined,
+    },
+  };
+}
+
+async function CamperPage({ params }: PageProps) {
+  const { id } = await params;
+  const queryClient = new QueryClient();
+
+  await fetchCamper(id, queryClient);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CamperDetailsClient />
+    </HydrationBoundary>
+  );
+}
+
+export default CamperPage;
+
+================================================================================
+===== FILE: catalog\[id]\pageClient.module.css =====
+================================================================================
+
+.pageContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	flex: 1;
+}
+
+.pageLayout {
+	padding: 50px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 44px;
+	align-items: flex-start;
+}
+
+.headerBlock {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: center;
+	min-width: 100%;
+	gap: 28px;
+}
+
+.description {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+	margin-bottom: 16px;
+}
+
+.tabs {
+	display: flex;
+	gap: 40px;
+	min-width: 100%;
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 120%;
+	color: var(--foreground);
+	padding-bottom: 24px;
+	border-bottom: 1px solid var(--color-gray-light);
+}
+
+.tab {
+	position: relative;
+	padding: 12px 0;
+	font-size: 18px;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.tab.active::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -27px;
+	width: 100%;
+	height: 5px;
+	background: var(--color-button);
+	border-radius: 2px;
+}
+
+.tabContent {
+	min-height: 100%;
+	height: 100%;
+}
+
+.bottomTabs {
+	display: grid;
+	grid-template-columns: 1fr 640px;
+	gap: 40px;
+	width: 100%;
+	align-items: start;
+}
+
+@media (max-width: 768px) {
+	.bottomTabs {
+		grid-template-columns: 1fr;
+	}
+}
+================================================================================
+===== FILE: catalog\[id]\pageClient.tsx =====
+================================================================================
+
+'use client';
+import MessageNoInfo from '@/app/components/MessageNoInfo/MessageNoInfo';
+import { getCamperById } from '@/app/services/api/api.services';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
+import css from './pageClient.module.css';
+import Loading from '@/app/loading';
+import { ERROR_MAIN_MESSAGE } from '@/app/lib/vars';
+import CamperHeader from '@/app/components/ListItemDetails/ListItemComponents/CamperHeader';
+import CamperGallery from '@/app/components/ListItemDetails/ListItemComponents/CamperGallery';
+import { useState } from 'react';
+import FeaturesList from '@/app/components/ListItemDetails/ListItemComponents/FeaturesList';
+import ReviewsList from '@/app/components/ListItemDetails/ListItemComponents/ReviewsList';
+import { BookingForm } from '@/app/components/ListItemDetails/ListItemComponents/BookingForm';
+import Footer from '@/app/components/Footer/Footer';
+
+function CamperDetailsClient() {
+  const { id } = useParams<{ id: string }>();
+
+  const [activeTab, setActiveTab] = useState<'features' | 'reviews'>('features');
+
+  const {
+    data: camper,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ['CamperById', id],
+    queryFn: () => getCamperById(id),
+    refetchOnMount: true,
+  });
+
+  if (isError) {
+    return (
+      <div className="container">
+        <MessageNoInfo buttonText="Go back to catalog" text={ERROR_MAIN_MESSAGE} route="/catalog" />
+      </div>
+    );
+  }
+
+  if (isFetching || !camper) {
+    return (
+      <div className="container">
+        <Loading />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <section className="container">
+        <div className={css.pageLayout}>
+          <div className={css.headerBlock}>
+            <CamperHeader item={camper} />
+            <CamperGallery images={camper.gallery} title={camper.name} />
+            <p className={css.description}>{camper.description}</p>
+          </div>
+          <div className={css.tabs}>
+            <button
+              className={`${css.tab} ${activeTab === 'features' ? css.active : ''}`}
+              onClick={() => setActiveTab('features')}
+            >
+              Features
+            </button>
+
+            <button
+              className={`${css.tab} ${activeTab === 'reviews' ? css.active : ''}`}
+              onClick={() => setActiveTab('reviews')}
+            >
+              Reviews
+            </button>
+          </div>
+
+          <div className={css.bottomTabs}>
+            <div className={css.tabContent}>
+              {activeTab === 'features' && <FeaturesList camper={camper} />}
+              {activeTab === 'reviews' && <ReviewsList reviews={camper.reviews} />}
+            </div>
+            <BookingForm camper={camper} />
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
+  );
+}
+
+export default CamperDetailsClient;
+
+================================================================================
+===== FILE: catalog\page.tsx =====
+================================================================================
+
+import React from 'react';
+
+import type { Metadata } from 'next';
+import CatalogClientPage from './pageClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  title: 'Campify Catalog — Browse Camper Vans',
+  description:
+    'Explore the full catalog of camper vans on Campify: Travel Trucks. Filter by location, vehicle type and amenities to find the perfect camper for your trip.',
+  alternates: {
+    canonical: `${SITE_URL}/catalog`,
+  },
+  openGraph: {
+    title: 'Campify Catalog — Camper Vans for Rent',
+    description: 'Browse and filter camper vans by location, type and amenities on Campify: Travel Trucks.',
+    url: `${SITE_URL}/catalog`,
+    siteName: 'Campify: Travel Trucks',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-catalog.jpg`, // теж можна додати потім
+        width: 1200,
+        height: 630,
+        alt: 'Campify catalog of camper vans',
+      },
+    ],
+  },
+};
+
+function CatalogPage() {
+  return (
+    <div>
+      <CatalogClientPage />
+    </div>
+  );
+}
+
+export default CatalogPage;
+
+================================================================================
+===== FILE: catalog\pageClient.module.css =====
+================================================================================
+
+.pageContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	flex: 1;
+}
+
+.pageLayout {
+	padding: 50px 0;
+	display: flex;
+	gap: 64px;
+	align-items: flex-start;
+}
+================================================================================
+===== FILE: catalog\pageClient.tsx =====
+================================================================================
+
+'use client';
+
+import { getCamperList } from '../services/api/api.services';
+import toastMessage, { MyToastType } from '../services/messageService';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
+import Loading from '../loading';
+import ListView from '../components/ListView/ListView';
+import AsideFilterView from '../components/Filter/AsideFilterView';
+import { useCamperFilters } from '../stores/camperFiltersStore';
+import { Button } from '../components/Button/Button';
+import css from './pageClient.module.css';
+import { useEffect, useState } from 'react';
+import { CamperData } from '../services/api/api.types';
+import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
+import Footer from '../components/Footer/Footer';
+
+function CatalogClientPage() {
+  const filters = useCamperFilters(s => s.filters);
+  const clearFilters = useCamperFilters(s => s.clearFilters);
+
+  const [page, setPage] = useState(1);
+  const [campers, setAllCampers] = useState<CamperData[]>([]);
+
+  const { data, isFetching, isError } = useQuery({
+    queryKey: ['TrackListFiltered', filters, page],
+    queryFn: async () => {
+      const res = await getCamperList({ ...filters, page, limit: LIMIT });
+      if (!res) toastMessage(MyToastType.error, 'bad request');
+      return res;
+    },
+    refetchOnMount: false,
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!data) {
+        setAllCampers([]);
+        return;
+      }
+
+      if (page === 1) {
+        setAllCampers(data.items);
+      } else {
+        //bad indexes
+        setAllCampers(prev => {
+          const merged = [...prev, ...data.items];
+          const unique = merged.filter((camper, index, self) => index === self.findIndex(c => c.id === camper.id));
+          return unique;
+        });
+      }
+    };
+    fetchData();
+  }, [data, page]);
+
+  useEffect(() => {
+    const fetchPages = async () => {
+      setPage(1);
+    };
+    fetchPages();
+  }, [filters]);
+
+  if (isError) {
+    return (
+      <div className="container">
+        <div className={css.pageLayout}>
+          <MessageNoInfo buttonText="Go back to Home page" text={ERROR_MAIN_MESSAGE} route="/" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <section className="container">
+        <div className={css.pageLayout}>
+          <AsideFilterView total={data?.total || 0} shown={campers.length} isFetching={isFetching} />
+          <div className={css.pageContainer}>
+            {!isFetching && campers.length === 0 && (
+              <MessageNoInfo
+                buttonText="Clear filters"
+                text="No campers found. Try to clear filters."
+                onClick={clearFilters}
+              />
+            )}
+            {campers && campers.length > 0 && <ListView items={campers} />}
+
+            {isFetching && <Loading />}
+            {data && campers.length < data?.total && (
+              <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
+            )}
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
+  );
+}
+
+export default CatalogClientPage;
+
+================================================================================
+===== FILE: components\Button\Button.module.css =====
+================================================================================
+
+.button {
+	border-radius: 200px;
+	padding: 16px 60px;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 150%;
+	letter-spacing: -0.01em;
+
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	color: var(--background);
+	background-color: var(--color-button);
+	border: none;
+	text-decoration: none;
+}
+
+
+.primary {
+	color: var(--background);
+	background-color: var(--color-button);
+	border: none;
+}
+
+.primary:hover,
+.primary:focus {
+	background-color: var(--color-button-hover);
+}
+
+.loadMore {
+	color: var(--foreground);
+	background-color: var(--background);
+	border: 1px solid var(--color-primary-light);
+	padding: 14px 50px;
+}
+
+.loadMore:hover,
+.loadMore:focus {
+	border-color: var(--color-button-hover);
+}
+================================================================================
+===== FILE: components\Button\Button.tsx =====
+================================================================================
+
+'use client';
+
+import Link from 'next/link';
+import styles from './Button.module.css';
+
+type ButtonVariant = 'primary' | 'loadMore';
+
+type BaseProps = {
+  label: string;
+  className?: string;
+  variant?: ButtonVariant;
+  isDisabled?: boolean;
+};
+
+type ButtonProps =
+  | (BaseProps & { href: string; onClick?: never; type?: never })
+  | (BaseProps & { href?: undefined; onClick: () => void; type?: 'button' })
+  | (BaseProps & { href?: undefined; onClick?: never; type: 'submit' | 'reset' });
+
+export function Button(props: ButtonProps) {
+  const { label, className, variant = 'primary' } = props;
+
+  const variantClass = styles[variant];
+
+  if ('href' in props && props.href) {
+    return (
+      <Link href={props.href} className={`${styles.button} ${variantClass} ${className || ''}`}>
+        {label}
+      </Link>
+    );
+  }
+
+  if (props.type === 'submit' || props.type === 'reset') {
+    return (
+      <button
+        disabled={props.isDisabled}
+        type={props.type}
+        className={`${styles.button} ${variantClass} ${className || ''}`}
+      >
+        {label}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      disabled={props.isDisabled}
+      type="button"
+      onClick={props.onClick}
+      className={`${styles.button} ${variantClass} ${className || ''}`}
+    >
+      {label}
+    </button>
+  );
+}
+
+================================================================================
+===== FILE: components\DatePickerField\DatePickerField.module.css =====
+================================================================================
+
+.fieldWrapper {
+	border-radius: 12px;
+	position: relative;
+	width: 100%;
+}
+
+.input {
+	border: 1px solid var(--color-gray-soft);
+	text-align: left;
+	border-radius: 12px;
+	padding: 18px;
+	width: 100%;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary-light);
+	background: var(--color-gray-soft);
+}
+
+.inputError {
+	border-color: var(--color-button);
+}
+
+.placeholder {
+	color: rgba(0, 0, 0, 0.55)
+}
+
+
+/*//////////////*/
+/*calendar*/
+.dateInput:focus {
+	outline: 2px solid var(--foreground);
+}
+
+.datePopup {
+	position: absolute;
+	top: calc(100% + 8px);
+	z-index: 100;
+	background: var(--background);
+	border: 1px solid var(--foreground);
+	border-radius: 16px;
+	padding: 16px;
+	width: 276px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.popupArrow {
+	position: absolute;
+	top: -7px;
+	left: 50%;
+	height: 14px;
+	width: 14px;
+	transform: translateX(-50%) rotate(45deg);
+	background: var(--background);
+	border-left: 1px solid var(--foreground);
+	border-top: 1px solid var(--foreground);
+}
+
+
+.calendar {
+	--rdp-accent-color: var(--color-primary-light);
+	--rdp-accent-background-color: var(--color-primary-light);
+	--rdp-outline: none;
+
+	font-family: inherit;
+}
+
+:global(.rdp-caption_label) {
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 120%;
+	text-align: center;
+}
+
+:global(.rdp-nav_button) {
+	background: none;
+	border: none;
+	font-size: 20px;
+	cursor: pointer;
+	color: var(--foreground);
+}
+
+:global(.rdp-nav_button:hover) {
+	opacity: 0.7;
+}
+
+:global(.rdp-head_row) {
+	font-family: "Inter", sans-serif;
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--color-primary-light);
+	margin-bottom: 12px;
+}
+
+:global(.rdp-weekday) {
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 120%;
+	text-align: center;
+	color: var(--color-primary);
+	border-bottom: 1px solid var(--color-primary);
+}
+
+:global(.rdp-row) {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-bottom: 4px;
+
+}
+
+:global(.rdp-day_button) {
+	font-family: "Inter", sans-serif;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	margin: 2px;
+	border-radius: 50%;
+	font-size: 14px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
+
+/* Ховер */
+:global(.rdp-day_button:hover) {
+	background: var(--color-primary-light);
+	color: var(--background);
+}
+
+/* OUTSIDE DAYS */
+:global(.rdp-day_outside .rdp-day_button) {
+	color: var(--color-primary);
+}
+
+/* SELECTED DAY */
+:global(.rdp-day.rdp-selected .rdp-day_button) {
+	background: var(--color-primary) !important;
+	color: white !important;
+	font-weight: 400;
+}
+
+:global(.rdp-footer) {
+	padding: 12px 16px;
+	color: var(--color-primary);
+	font-size: 14px;
+	border-top: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 0 0 8px 8px;
+	text-align: center;
+}
+================================================================================
+===== FILE: components\DatePickerField\DatePickerField.tsx =====
+================================================================================
+
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { DayPicker, Formatters } from 'react-day-picker';
+import { format } from 'date-fns';
+import 'react-day-picker/dist/style.css';
+import css from './DatePickerField.module.css';
+import { SELECT_DATE } from '@/app/lib/vars';
+import { da } from 'react-day-picker/locale';
+
+interface Props {
+  value: string;
+  onChange: (date: string) => void;
+  error?: string;
+  touched?: boolean;
+}
+
+export function DatePickerField({ value, onChange, error, touched }: Props) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [placeholder, setPlaceholder] = useState<string>('Booking date*');
+
+  const hasError = !!error && touched;
+
+  const formatters: Partial<Formatters> = {
+    formatWeekdayName: (weekday: Date) => weekday.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+  };
+
+  const TODAY = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })();
+
+  const handleSelect = (date: Date | undefined) => {
+    if (!date) return;
+
+    if (date < TODAY) {
+      setPlaceholder(SELECT_DATE);
+      return;
+    }
+
+    const formatted = format(date, 'dd MMMM yyyy');
+
+    if (formatted !== value) {
+      onChange(formatted);
+    }
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div className={css.fieldWrapper} ref={ref}>
+      <button
+        type="button"
+        title="Select a date starting from today"
+        className={`${css.input} ${hasError && css.inputError} ${!value ? css.placeholder : ''}`}
+        onClick={() => setOpen(!open)}
+      >
+        {value ? format(new Date(value), 'dd MMMM yyyy') : placeholder}
+      </button>
+
+      {open && (
+        <div className={css.datePopup}>
+          <div className={css.popupArrow}></div>
+
+          <DayPicker
+            mode="single"
+            selected={value ? new Date(value) : undefined}
+            onSelect={handleSelect}
+            formatters={formatters}
+            weekStartsOn={1}
+            disabled={[{ before: TODAY }]}
+            className={css.calendar}
+            footer={SELECT_DATE}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\FeatureTag\FeatureTag.module.css =====
+================================================================================
+
+.tag {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 12px 16px;
+	background: var(--color-gray-lighter);
+	mix-blend-mode: multiply;
+	border-radius: 20px;
+	font-size: 16px;
+}
+================================================================================
+===== FILE: components\FeatureTag\FeatureTag.tsx =====
+================================================================================
+
+import IconComponent from '../Icon/Icon.component';
+import css from './FeatureTag.module.css';
+
+interface Props {
+  label: string;
+  icon: string;
+}
+
+export function FeatureTag({ label, icon }: Props) {
+  return (
+    <div className={css.tag}>
+      <IconComponent name={icon} size={16} />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\Filter\AsideFilterView.module.css =====
+================================================================================
+
+.aside {
+	max-width: 360px;
+	width: 100%;
+	flex-shrink: 0;
+	position: sticky;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.filters {
+	margin: 40px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.locationTitle {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary-light);
+	margin-bottom: 8px;
+}
+
+.sectionTitle {
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+}
+
+.blockTitle {
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 120%;
+	color: var(--foreground);
+}
+
+.divider {
+	height: 1px;
+	background: var(--color-gray-light);
+	margin: 24px 0;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+	row-gap: 8px;
+}
+================================================================================
+===== FILE: components\Filter\AsideFilterView.tsx =====
+================================================================================
+
+'use client';
+
+import { CamperForm } from '@/app/services/api/api.types';
+import css from './AsideFilterView.module.css';
+import { FeatureConfig, FeatureKey, FILTERS_CONFIG, FORM_CONFIG } from '@/app/types/filter.types';
+import FilterButton from './FilterButton';
+import { useCamperFilters } from '@/app/stores/camperFiltersStore';
+import { Button } from '../Button/Button';
+import LocationBlock from './LocationBlock';
+
+interface Props {
+  total: number;
+  shown: number;
+  isFetching: boolean;
+}
+
+function AsideFilterView({ shown, total, isFetching }: Props) {
+  const filters = useCamperFilters(s => s.filters);
+  const setFilter = useCamperFilters(s => s.setFilter);
+  const clearFilters = useCamperFilters(s => s.clearFilters);
+
+  return (
+    <aside className={css.aside}>
+      <h3 className={css.locationTitle}>Location</h3>
+      <LocationBlock />
+
+      <div className={css.filters}>
+        {isFetching ? (
+          <h3 className={css.sectionTitle}>Filters: </h3>
+        ) : (
+          <h3 className={css.sectionTitle}>{`Filters: result ${shown} from ${total}`}</h3>
+        )}
+
+        <div className={css.block}>
+          <h4 className={css.blockTitle}>Vehicle equipment</h4>
+          <div className={css.divider}></div>
+
+          <div className={css.grid}>
+            {(Object.entries(FILTERS_CONFIG) as [FeatureKey, FeatureConfig][]).map(([key, cfg]) => (
+              <FilterButton
+                key={key}
+                icon={cfg.icon}
+                label={cfg.label}
+                active={!!filters[key]}
+                onClick={() => setFilter(key, !filters[key])}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className={css.block}>
+          <h4 className={css.blockTitle}>Vehicle type</h4>
+          <div className={css.divider}></div>
+
+          <div className={css.grid}>
+            {Object.entries(FORM_CONFIG).map(([value, cfg]) => (
+              <FilterButton
+                key={value}
+                icon={cfg.icon}
+                label={cfg.label}
+                active={filters.form === value}
+                onClick={() => setFilter('form', value as CamperForm)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      <Button type="button" label="Clear filters" variant="loadMore" onClick={clearFilters} />
+    </aside>
+  );
+}
+
+export default AsideFilterView;
+
+================================================================================
+===== FILE: components\Filter\FilterButton.module.css =====
+================================================================================
+
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 6px;
+  gap: 10px;
+
+  border: 1px solid var(--color-gray-light);
+  border-radius: 12px;
+  min-width: 112px;
+  height: 96px;
+
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--color-primary-dark);
+
+  background: var(--background);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  border-color: var(--color-primary);
+}
+
+.active {
+  border-color: var(--color-button);
+}
+
+/*.icon {
+  width: 20px;
+  height: 20px;
+}*/
+================================================================================
+===== FILE: components\Filter\FilterButton.tsx =====
+================================================================================
+
+'use client';
+
+import IconComponent from '../Icon/Icon.component';
+import styles from './FilterButton.module.css';
+
+interface Props {
+  label: string;
+  icon: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+export function FilterButton({ label, icon, active, onClick }: Props) {
+  return (
+    <button type="button" className={`${styles.button} ${active ? styles.active : ''}`} onClick={onClick}>
+      <IconComponent name={icon} size={24} />
+      <span className={styles.label}>{label}</span>
+    </button>
+  );
+}
+
+export default FilterButton;
+
+================================================================================
+===== FILE: components\Filter\LocationBlock.module.css =====
+================================================================================
+
+.wrapper {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
+	background: var(--color-gray-soft);
+	border-radius: 14px;
+	padding: 14px 18px;
+
+	font-size: 16px;
+	color: var(--foreground);
+}
+
+.input {
+	border: none;
+	outline: none;
+	background: var(--color-gray-soft);
+	flex: 1;
+	font-size: 16px;
+	color: var(--foreground);
+}
+
+.input::placeholder {
+	color: var(--foreground);
+}
+================================================================================
+===== FILE: components\Filter\LocationBlock.tsx =====
+================================================================================
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import IconComponent from '../Icon/Icon.component';
+import css from './LocationBlock.module.css';
+import { useCamperFilters } from '@/app/stores/camperFiltersStore';
+import { useDebounce } from '@/app/lib/hooks/useDebounceSearch';
+
+export default function LocationBlock() {
+  const location = useCamperFilters(s => s.filters.location);
+  const setFilter = useCamperFilters(s => s.setFilter);
+
+  const [inputValue, setInputValue] = useState(location || '');
+
+  useEffect(() => {
+    const setInputData = async () => {
+      setInputValue(location || '');
+    };
+    setInputData();
+  }, [location]);
+
+  const debouncedValue = useDebounce(inputValue, 500);
+
+  useEffect(() => {
+    if (debouncedValue === '') {
+      setFilter('location', '');
+      return;
+    }
+    setFilter('location', debouncedValue.trim());
+  }, [debouncedValue, setFilter]);
+
+  return (
+    <div className={css.wrapper}>
+      <IconComponent name="map" size={18} isMap />
+      <input
+        type="text"
+        className={css.input}
+        placeholder="Country, City"
+        value={inputValue}
+        onChange={e => setInputValue(e.target.value)}
+      />
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\Footer\Footer.module.css =====
+================================================================================
+
+.footer {
+  padding: 24px 0;
+  border-top: 1px solid var(--color-gray-light);
+  background: var(--background);
+  margin-top: 14px;
+}
+
+.footerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+}
+
+.text {
+  font-size: 14px;
+  color: var(--color-primary-light);
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--color-primary-light);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.copyright:hover {
+  color: var(--color-button-hover);
+}
+================================================================================
+===== FILE: components\Footer\Footer.tsx =====
+================================================================================
+
+'use client';
+import Link from 'next/link';
+import css from './Footer.module.css';
+
+function Footer() {
+  return (
+    <footer className={css.footer}>
+      <div className="container">
+        <div className={css.footerContainer}>
+          <p className={css.text}>
+            Developed by
+            <Link className={css.text} href="https://github.com/Veron0013" target="_blank">
+              {' '}
+              Igor Vdovyka
+            </Link>
+          </p>
+
+          <p className={css.copyright}>© 2025 All rights reserved</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default Footer;
+
+================================================================================
+===== FILE: components\Header\Header.module.css =====
+================================================================================
+
+.header {
+  background-color: var(--color-gray-soft);
+  color: var(--color-primary-dark);
+}
+
+
+.header_container {
+  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+}
+
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex: 1;
+}
+
+.nav_list {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  list-style: none;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.right {
+  flex: 1;
+}
+
+.nav_list_item_link {
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--foreground);
+  transition: color 0.3s ease;
+}
+
+.nav_list_item_link:hover {
+  color: var(--color-button-hover);
+}
+
+.nav_active {
+  color: var(--color-button-hover);
+}
+================================================================================
+===== FILE: components\Header\Header.tsx =====
+================================================================================
+
+'use client';
+import Link from 'next/link';
+import css from './Header.module.css';
+import IconComponent from '../Icon/Icon.component';
+import { usePathname } from 'next/navigation';
+
+function Header() {
+  const pathname = usePathname();
+  return (
+    <header className={css.header}>
+      <div className="container">
+        <div className={css.header_container}>
+          <Link href={'/'} className={css.logo}>
+            <svg width="136" height="16" aria-hidden="true">
+              <use href="/icons/logo.svg"></use>
+            </svg>
+          </Link>
+          <ul className={css.nav_list}>
+            <li className={css.nav_list_item}>
+              <Link className={`${css.nav_list_item_link} ${pathname === '/' ? css.nav_active : ''}`} href="/">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={`${css.nav_list_item_link} ${pathname === '/catalog' ? css.nav_active : ''}`}
+                href="/catalog"
+              >
+                Catalog
+              </Link>
+            </li>
+            <li>
+              <Link href="/favorites">
+                <IconComponent name="heart-filled" size={20} />
+              </Link>
+            </li>
+          </ul>
+          <div className={css.right}></div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
+
+================================================================================
+===== FILE: components\Hero\Hero.module.css =====
+================================================================================
+
+.hero {
+	width: 100%;
+	height: calc(100vh - 72px);
+	background-image: image-set(url('/img/hero@1.webp') 1x,
+			url('/img/hero@2.webp') 2x);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	overflow: hidden;
+
+	display: flex;
+	align-items: flex-start;
+}
+
+.title_wrapper {
+	margin-bottom: 40px;
+	min-width: 100%;
+	align-self: flex-start;
+}
+
+.title {
+	font-weight: 600;
+	font-size: 48px;
+	line-height: 1.1;
+	padding-bottom: 16px;
+	color: var(--color-white);
+}
+
+.hero_text {
+	font-weight: 600;
+	font-size: 24px;
+	line-height: 133%;
+	color: var(--color-white);
+}
+================================================================================
+===== FILE: components\Hero\Hero.tsx =====
+================================================================================
+
+import css from './Hero.module.css';
+import { Button } from '../Button/Button';
+
+function Hero() {
+  return (
+    <section className={css.hero}>
+      <div className="container">
+        <div className={css.title_wrapper}>
+          <h1 className={css.title}>Campers of your dreams</h1>
+          <p className={css.hero_text}>You can find everything you want in our catalog</p>
+        </div>
+        <Button label="View now" href="/catalog" />
+      </div>
+    </section>
+  );
+}
+
+export default Hero;
+
+================================================================================
+===== FILE: components\Icon\Icon.component.tsx =====
+================================================================================
+
+interface IconProps {
+  name: string;
+  size: number;
+  isMap?: boolean;
+  onClick?: () => void;
+}
+export function IconComponent({ name, size = 20, isMap, onClick }: IconProps) {
+  const href = isMap ? `/icons/map.svg` : `/icons/icons.svg#${name}`;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      vectorEffect="non-scaling-stroke"
+      onClick={onClick}
+      style={onClick ? { cursor: 'pointer' } : undefined}
+    >
+      <use href={href} />
+    </svg>
+  );
+}
+
+export default IconComponent;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\BookingForm.tsx =====
+================================================================================
+
+'use client';
+
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import css from './CamperDetails.module.css';
+import { Button } from '../../Button/Button';
+import toastMessage, { MyToastType } from '@/app/services/messageService';
+import { CamperData } from '@/app/services/api/api.types';
+import { DatePickerField } from '../../DatePickerField/DatePickerField';
+
+interface Props {
+  camper: CamperData;
+}
+
+const BookingSchema = Yup.object().shape({
+  name: Yup.string().required('Required'),
+  email: Yup.string().email('Invalid email').required('Required'),
+  bookingDate: Yup.date().required('Required'),
+  comment: Yup.string().max(300, 'Too long'),
+});
+
+export function BookingForm({ camper }: Props) {
+  const getInputClass = (error: unknown, touched: boolean | undefined) => {
+    return error && touched ? `${css.input} ${css.inputError}` : css.input;
+  };
+
+  return (
+    <div className={css.wrapper}>
+      <h2 className={css.title}>Book your campervan now</h2>
+      <p className={css.subtitle}>Stay connected! We are always ready to help you.</p>
+
+      <Formik
+        initialValues={{
+          name: '',
+          email: '',
+          bookingDate: '',
+          comment: '',
+        }}
+        validationSchema={BookingSchema}
+        onSubmit={(values, actions) => {
+          const formatted = new Date(values.bookingDate).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          });
+          toastMessage(MyToastType.success, `${camper.name} was booked on ${formatted}. Enjoy your trip!`);
+          actions.resetForm();
+        }}
+      >
+        {({ isSubmitting, values, setFieldValue, errors, touched }) => (
+          <Form className={css.form}>
+            <div className={css.fieldWrapper}>
+              <Field name="name" placeholder="Name*" className={getInputClass(errors.name, touched.name)} />
+              <ErrorMessage name="name" component="div" className={css.error} />
+            </div>
+
+            <div className={css.fieldWrapper}>
+              <Field name="email" placeholder="Email*" className={getInputClass(errors.name, touched.name)} />
+              <ErrorMessage name="email" component="div" className={css.error} />
+            </div>
+
+            <div className={css.fieldWrapper}>
+              <DatePickerField
+                value={values.bookingDate}
+                onChange={date => setFieldValue('bookingDate', date)}
+                error={errors.bookingDate}
+                touched={touched.bookingDate}
+              />
+              <ErrorMessage name="bookingDate" component="div" className={css.error} />
+            </div>
+
+            <div className={css.fieldWrapper}>
+              <Field as="textarea" id="comment" className={css.input} name="comment" placeholder="Comment" rows={6} />
+              <ErrorMessage name="comment" component="div" className={css.error} />
+            </div>
+
+            <Button label="Send" type="submit" variant="primary" isDisabled={isSubmitting} className={css.submit} />
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\CamperDetails.module.css =====
+================================================================================
+
+.header {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: start;
+  gap: 8px;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cardPrice {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+
+.itemRates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaStat {
+  position: relative;
+  display: inline-flex;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--foreground);
+}
+
+
+.metaStat::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 1;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.itemLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.locationText {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--foreground);
+}
+
+/*//////////////////////////////////*/
+/*gallery*/
+.listStyle {
+  display: grid;
+  gap: 48px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cardImgWrap {
+  position: relative;
+  width: 100%;
+  height: 312px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/*////////////////////////////////////////////////*/
+/*features*/
+.featuresBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 44px 52px;
+  background-color: var(--color-gray-soft);
+  min-height: 631px;
+  height: 100%;
+}
+
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.featuresDetails {
+  min-width: 100%;
+}
+
+.blockTitle {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--foreground);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-gray-light);
+  margin: 24px 0;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 16px;
+  column-gap: 24px;
+}
+
+.details dt {
+  color: var(--foreground);
+}
+
+.details dd {
+  text-align: right;
+  color: var(--foreground);
+}
+
+.row {
+  display: contents;
+}
+
+/*////////////////////////////*/
+/*reviesws */
+.reviewList {
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.reviewCard {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  gap: 16px;
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 60px;
+  height: 60px;
+  border-radius: 60px;
+  background: var(--color-gray-lighter);
+
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 133%;
+  color: var(--color-button);
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  margin-bottom: 4px;
+  color: var(--foreground);
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.comment {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--color-primary);
+}
+
+/*////////////////////////*/
+/*booking*/
+.wrapper {
+  border: 1px solid var(--color-gray-light);
+  border-radius: 10px;
+  padding: 44px 57px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--color-primary-light);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 100%;
+  margin-top: 24px;
+}
+
+.fieldWrapper {
+  border-radius: 12px;
+}
+
+.input {
+  font-family: "Inter", sans-serif;
+  border: 1px solid var(--color-gray-soft);
+  border-radius: 12px;
+  padding: 18px;
+  width: 100%;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--color-primary-light);
+  background: var(--color-gray-soft);
+}
+
+.submit {
+  margin-top: 10px;
+  width: fit-content;
+  align-self: center;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--color-button);
+}
+
+.inputError {
+  border-color: var(--color-button);
+}
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\CamperGallery.tsx =====
+================================================================================
+
+import { GalleryImage } from '@/app/services/api/api.types';
+import Image from 'next/image';
+import css from './CamperDetails.module.css';
+
+interface Props {
+  images: GalleryImage[];
+  title: string;
+}
+function CamperGallery({ images, title }: Props) {
+  return (
+    <div>
+      <ul className={css.listStyle}>
+        {images.map((item: GalleryImage, index) => {
+          return (
+            <li key={index}>
+              <div className={css.cardImgWrap}>
+                <Image
+                  src={item.original}
+                  alt={title}
+                  width={292}
+                  height={320}
+                  className={css.cardImg}
+                  loading="lazy"
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default CamperGallery;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\CamperHeader.tsx =====
+================================================================================
+
+import css from './CamperDetails.module.css';
+import IconComponent from '../../Icon/Icon.component';
+import { CamperData } from '@/app/services/api/api.types';
+
+interface Props {
+  item: CamperData;
+}
+
+function CamperHeader({ item }: Props) {
+  return (
+    <div className={css.header}>
+      <h3 className={css.cardTitle}>{item.name}</h3>
+      <div className={css.metaRow} role="group" aria-label="Rating and location">
+        <div className={css.itemRates}>
+          <IconComponent name="star-filled" size={20} />
+          <span className={css.metaStat}>{`${item.rating ?? 0}(${item.reviews.length ?? 0} Reviews)`}</span>
+        </div>
+
+        <div className={css.itemLocation}>
+          <IconComponent name="map" size={20} isMap />
+          <span className={css.locationText}>{item.location}</span>
+        </div>
+      </div>
+      <p className={css.cardPrice}>{`€${item.price.toFixed(2)}`}</p>
+    </div>
+  );
+}
+
+export default CamperHeader;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\FeaturesList.tsx =====
+================================================================================
+
+import { CamperData } from '@/app/services/api/api.types';
+import css from './CamperDetails.module.css';
+import { CARD_FEATURES_CONFIG, FORM_CONFIG } from '@/app/types/filter.types';
+import { FeatureTag } from '../../FeatureTag/FeatureTag';
+import MessageNoInfo from '../../MessageNoInfo/MessageNoInfo';
+
+interface Props {
+  camper: CamperData;
+}
+
+function FeaturesList({ camper }: Props) {
+  const formInfo = FORM_CONFIG[camper.form].label;
+
+  const formatUnitValue = (value: string): string => {
+    return value.replace(/(\d)([a-zA-Z])/g, '$1 $2');
+  };
+
+  if (!camper)
+    return <MessageNoInfo buttonText="Home page" text="No fetures found. Maybe you can try later." route="/" />;
+
+  return (
+    <div className={css.featuresBlock}>
+      <div className={css.features}>
+        {CARD_FEATURES_CONFIG.filter(f => camper[f.key] !== undefined && camper[f.key] !== false).map(f => (
+          <FeatureTag key={f.key} icon={f.icon(camper[f.key] as never)} label={f.label(camper[f.key] as never)} />
+        ))}
+      </div>
+      <div className={css.featuresDetails}>
+        <h4 className={css.blockTitle}>Vehicle type</h4>
+        <div className={css.divider}></div>
+        <dl className={css.details}>
+          <div className={css.row}>
+            <dt>Form</dt>
+            <dd>{formInfo}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Length</dt>
+            <dd>{formatUnitValue(camper.length)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Width</dt>
+            <dd>{formatUnitValue(camper.width)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Height</dt>
+            <dd>{formatUnitValue(camper.height)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Tank</dt>
+            <dd>{formatUnitValue(camper.tank)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Consumption</dt>
+            <dd>{camper.consumption}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+export default FeaturesList;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\ReviewsList.tsx =====
+================================================================================
+
+import { CamperReview } from '@/app/services/api/api.types';
+import css from './CamperDetails.module.css';
+import IconComponent from '../../Icon/Icon.component';
+import MessageNoInfo from '../../MessageNoInfo/MessageNoInfo';
+import toastMessage, { MyToastType } from '@/app/services/messageService';
+
+interface Props {
+  reviews: CamperReview[];
+}
+
+function ReviewsList({ reviews }: Props) {
+  const handleAddComment = () => {
+    toastMessage(MyToastType.loading, 'Sorry, this feature under maintenance');
+  };
+  if (!reviews.length)
+    return (
+      <MessageNoInfo
+        buttonText="Add a comment"
+        text="No comments yet. Maybe you can add yours?"
+        onClick={handleAddComment}
+      />
+    );
+  return (
+    <div>
+      <ul className={css.reviewList}>
+        {reviews.map((item: CamperReview, index) => {
+          return (
+            <li key={item.reviewer_name + index} className={css.reviewCard}>
+              <div className={css.reviewHeader}>
+                <div className={css.avatar}>{item.reviewer_name.charAt(0).toUpperCase()}</div>
+
+                <div className={css.headerInfo}>
+                  <p className={css.name}>{item.reviewer_name}</p>
+
+                  <div className={css.stars}>
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const diff = (item.reviewer_rating ?? 0) - i;
+                      return diff > 0 ? (
+                        <IconComponent key={i} name="star-filled" size={16} />
+                      ) : (
+                        <IconComponent key={i} name="star" size={16} />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <p className={css.comment}>{item.comment}</p>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default ReviewsList;
+
+================================================================================
+===== FILE: components\ListItem\ListItem.module.css =====
+================================================================================
+
+.card {
+	display: flex;
+	gap: 24px;
+	border: 1px solid var(--color-gray-light);
+	border-radius: 20px;
+	padding: 24px;
+}
+
+.cardImgLink {
+	flex-shrink: 0;
+}
+
+.cardImgWrap {
+	width: 292px;
+	height: 380px;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.cardImg {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: 25%;
+}
+
+.cardBottom {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.cardTitle {
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--foreground);
+
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cardPrice {
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--foreground);
+}
+
+.header_left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-shrink: 0;
+}
+
+
+.metaRow {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.itemRates {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.metaStat {
+	position: relative;
+	display: inline-flex;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--foreground);
+}
+
+
+.metaStat::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 1;
+	width: 100%;
+	height: 1px;
+	background-color: currentColor;
+}
+
+.itemLocation {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.locationText {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--foreground);
+}
+
+.descriptionBox {
+	position: relative;
+	max-width: 100%;
+	overflow: hidden;
+	margin-bottom: 24px;
+}
+
+.descriptionBox::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 40%;
+	height: 24px;
+	pointer-events: none;
+	background: linear-gradient(to right, transparent, var(--background));
+}
+
+.description {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 24px;
+}
+
+.cardActions {
+	margin-top: auto;
+	display: flex;
+}
+================================================================================
+===== FILE: components\ListItem\ListItem.tsx =====
+================================================================================
+
+import { CamperData } from '@/app/services/api/api.types';
+import Image from 'next/image';
+import Link from 'next/link';
+import css from './ListItem.module.css';
+import IconComponent from '../Icon/Icon.component';
+import { Button } from '../Button/Button';
+import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
+import { FeatureTag } from '../FeatureTag/FeatureTag';
+import { useFavoritesStore } from '@/app/stores/campersFavoritesStore';
+
+interface ItemProps {
+  item: CamperData;
+}
+
+function ListItem({ item }: ItemProps) {
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+
+  return (
+    <article className={css.card} data-card="camper-card">
+      <Link href={`/catalog/${item.id}`} className={css.cardImgLink}>
+        <div className={css.cardImgWrap}>
+          <Image
+            src={item.gallery[0].thumb}
+            alt={item.name}
+            width={292}
+            height={320}
+            className={css.cardImg}
+            loading="lazy"
+          />
+        </div>
+      </Link>
+
+      <div className={css.cardBottom}>
+        <div className={css.header}>
+          <h3 className={css.cardTitle}>{item.name}</h3>
+          <div className={css.header_left}>
+            <p className={css.cardPrice}>{`€${item.price.toFixed(2)}`}</p>
+            <IconComponent
+              name={isFavorite(item.id) ? 'heart-filled' : 'heart'}
+              size={20}
+              onClick={() => toggleFavorite(item)}
+            />
+          </div>
+        </div>
+
+        <div className={css.metaRow} role="group" aria-label="Rating and location">
+          <div className={css.itemRates}>
+            <IconComponent name="star-filled" size={20} />
+            <span className={css.metaStat}>{`${item.rating ?? 0}(${item.reviews.length ?? 0} Reviews)`}</span>
+          </div>
+
+          <div className={css.itemLocation}>
+            <IconComponent name="map" size={20} isMap />
+            <span className={css.locationText}>{item.location}</span>
+          </div>
+        </div>
+
+        <div className={css.descriptionBox} aria-label="Description">
+          <p className={css.description}>{item.description}</p>
+        </div>
+
+        <div className={css.features}>
+          {CARD_FEATURES_CONFIG.filter(f => item[f.key] !== undefined && item[f.key] !== false).map(f => (
+            <FeatureTag key={f.key} icon={f.icon(item[f.key] as never)} label={f.label(item[f.key] as never)} />
+          ))}
+        </div>
+
+        <div className={css.cardActions}>
+          <Button href={`/catalog/${item.id}`} className={css.cardCta} label="Show more" />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default ListItem;
+
+================================================================================
+===== FILE: components\ListView\ListView.module.css =====
+================================================================================
+
+.listStyle {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	min-width: 100%;
+	margin-bottom: 40px;
+}
+================================================================================
+===== FILE: components\ListView\ListView.tsx =====
+================================================================================
+
+import { CamperData } from '@/app/services/api/api.types';
+import css from './ListView.module.css';
+import ListItem from '../ListItem/ListItem';
+
+type Props = {
+  items: CamperData[];
+};
+
+function ListView({ items }: Props) {
+  return (
+    <div>
+      <ul className={css.listStyle}>
+        {items.map((item: CamperData) => {
+          return (
+            <li key={item.id} id={item.id.toString()}>
+              <ListItem item={item} />
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default ListView;
+
+================================================================================
+===== FILE: components\MessageNoInfo\MessageNoInfo.module.css =====
+================================================================================
+
+.message_wrapper {
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  border-radius: 16px;
+  width: 100%;
+  background-color: var(--background);
+  padding: 24px 16px;
+}
+
+.message_text {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-align: center;
+  color: var(--foreground);
+}
+
+/* DESKTOP */
+@media (min-width: 1440px) {
+  .message_container {
+    width: 640px;
+  }
+
+  .message_text {
+    max-width: 600px;
+    font-size: 18px;
+  }
+
+}
+================================================================================
+===== FILE: components\MessageNoInfo\MessageNoInfo.tsx =====
+================================================================================
+
+'use client';
+import { useRouter } from 'next/navigation';
+import styles from './MessageNoInfo.module.css';
+import { Button } from '../Button/Button';
+
+interface MessageNoInfoProps {
+  text: string;
+  buttonText: string;
+  route?: string;
+  onClick?: () => void;
+}
+
+export default function MessageNoInfo({ text, buttonText, route = '/', onClick }: MessageNoInfoProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onClick) return onClick();
+
+    router.back();
+    setTimeout(() => router.push(route), 50);
+  };
+
+  return (
+    <div className={styles.message_wrapper}>
+      <div className={styles.message_container}>
+        <p className={styles.message_text}>{text}</p>
+
+        <Button type="button" label={buttonText} variant="loadMore" onClick={handleClick} />
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\ScrollToTop\ScrollToTop.module.css =====
+================================================================================
+
+.scrollToTopBtn {
+	position: fixed;
+	right: 32px;
+	bottom: 32px;
+	width: 54px;
+	height: 54px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border: none;
+	border-radius: 50%;
+	background-color: var(--color-primary);
+	cursor: pointer;
+	z-index: 999;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+
+	opacity: 0;
+	transform: translateY(12px) scale(0.9);
+	pointer-events: none;
+
+	transition:
+		opacity 0.3s ease-out,
+		transform 0.3s ease-out;
+}
+
+.scrollToTopBtnVisible {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	pointer-events: auto;
+}
+
+.scrollToTopBtn:hover {
+	transform: translateY(-2px) scale(1.03);
+}
+
+@media (min-width: 1440px) {
+	.scrollToTopBtn {
+		right: calc(50% - 700px);
+	}
+}
+================================================================================
+===== FILE: components\ScrollToTop\ScrollToTop.tsx =====
+================================================================================
+
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import css from './ScrollToTop.module.css';
+import { SCROLL_THRESHOLD } from '@/app/lib/vars';
+import IconComponent from '../Icon/Icon.component';
+
+export default function ScrollToTop() {
+  const [visible, setVisible] = useState(false);
+  const lastScrollableRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const handleScrollToTop = (event: Event) => {
+      const target = event.target as HTMLElement | Document;
+      const scrollingElement = document.scrollingElement || document.documentElement;
+
+      const yPos = scrollingElement ? scrollingElement.scrollTop : 0;
+      let yTarget = 0;
+
+      if (target instanceof HTMLElement) {
+        if (target.scrollHeight > target.clientHeight + 4) {
+          yTarget = target.scrollTop;
+          lastScrollableRef.current = target;
+        }
+      }
+
+      const y = Math.max(yPos, yTarget);
+      setVisible(y > SCROLL_THRESHOLD);
+    };
+
+    document.addEventListener('scroll', handleScrollToTop, {
+      passive: true,
+      capture: true,
+    });
+    handleScrollToTop(new Event('scroll'));
+
+    return () => {
+      document.removeEventListener('scroll', handleScrollToTop, true);
+    };
+  }, []);
+
+  const handleClick = () => {
+    const scrollingElement = document.scrollingElement || document.documentElement;
+
+    if (scrollingElement) {
+      scrollingElement.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (lastScrollableRef.current) {
+      lastScrollableRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label="Scroll to top"
+      className={`${css.scrollToTopBtn} ${visible ? css.scrollToTopBtnVisible : ''}`}
+    >
+      <IconComponent name="scroll" size={60} />
+    </button>
+  );
+}
+
+================================================================================
+===== FILE: components\TanStackProvider\TanStackProvider.tsx =====
+================================================================================
+
+'use client';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+
+export default function TanStackProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+================================================================================
+===== FILE: favorites\page.tsx =====
+================================================================================
+
+import React from 'react';
+
+import type { Metadata } from 'next';
+import FavoritesClientPage from './pageClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  title: 'Campify Catalog — Browse Camper Vans',
+  description:
+    'Explore the full catalog of camper vans on Campify: Travel Trucks. Filter by location, vehicle type and amenities to find the perfect camper for your trip.',
+  alternates: {
+    canonical: `${SITE_URL}/catalog`,
+  },
+  openGraph: {
+    title: 'Campify Catalog — Camper Vans for Rent',
+    description: 'Browse and filter camper vans by location, type and amenities on Campify: Travel Trucks.',
+    url: `${SITE_URL}/catalog`,
+    siteName: 'Campify: Travel Trucks',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-catalog.jpg`, // теж можна додати потім
+        width: 1200,
+        height: 630,
+        alt: 'Campify catalog of camper vans',
+      },
+    ],
+  },
+};
+
+function page() {
+  return (
+    <div>
+      <FavoritesClientPage />
+    </div>
+  );
+}
+
+export default page;
+
+================================================================================
+===== FILE: favorites\pageClient.tsx =====
+================================================================================
+
+'use client';
+import css from '../catalog/pageClient.module.css';
+import ListView from '../components/ListView/ListView';
+import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
+import { useFavoritesStore } from '../stores/campersFavoritesStore';
+
+function FavoritesClientPage() {
+  const favoriteCampers = useFavoritesStore(s => s.favorites);
+  return (
+    <section className="container">
+      <div className={css.pageLayout}>
+        {favoriteCampers.length === 0 && (
+          <MessageNoInfo
+            buttonText="Go to catalog"
+            text="No campers found. Try to select one on catalog page."
+            route="/catalog"
+          />
+        )}
+        {favoriteCampers.length > 0 && <ListView items={favoriteCampers} />}
+      </div>
+    </section>
+  );
+}
+
+export default FavoritesClientPage;
+
+================================================================================
+===== FILE: globals.css =====
+================================================================================
+
+/*@import "tailwindcss";*/
+
+:root {
+  --color-primary-dark: #101828;
+  --color-primary: #475467;
+  --color-primary-light: #6c717b;
+
+  --color-button: #e44848;
+  --color-button-hover: #d84343;
+  --color-warning: #ffc531;
+
+  --color-gray-light: #dadde1;
+  --color-gray-lighter: #f2f4f7;
+  --color-gray-soft: #f7f7f7;
+  --color-white: #ffffff;
+
+  --background: var(--color-white);
+  --foreground: var(--color-primary-dark);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /*--background: var(--color-primary);
+    --foreground: var(--color-gray-light);*/
+    --background: var(--color-white);
+    --foreground: var(--color-primary-dark);
+
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, sans-serif;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  height: 100%;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.container {
+  min-width: 320px;
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 0 20px;
+  overflow-y: hidden;
+}
+
+.visually_hidden {
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+  visibility: hidden;
+  display: none;
+}
+
+@media screen and (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding: 0 32px;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .container {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+}
+================================================================================
+===== FILE: layout.tsx =====
+================================================================================
+
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Loading from './loading';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'react-hot-toast';
+import { Suspense } from 'react';
+import TanStackProvider from './components/TanStackProvider/TanStackProvider';
+import Header from './components/Header/Header';
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import Footer from './components/Footer/Footer';
+
+const interSans = Inter({
+  variable: '--font-inter',
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  preload: true,
+});
+
+export const metadata: Metadata = {
+  title: 'Create Next App',
+  description: 'Generated by create next app',
+  icons: {
+    icon: '/favicon.png',
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" data-scroll-behavior="smooth" data-theme="light" suppressHydrationWarning>
+      <body className={`${interSans.variable} antialiased`}>
+        <TanStackProvider>
+          <div className="layout">
+            <Suspense fallback={<Loading />}>
+              <Header />
+              {children}
+            </Suspense>
+            <ScrollToTop />
+          </div>
+          <Toaster />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </TanStackProvider>
+      </body>
+    </html>
+  );
+}
+
+================================================================================
+===== FILE: lib\hooks\useDebounceSearch.ts =====
+================================================================================
+
+import { useEffect, useState } from 'react';
+
+export function useDebounce<T>(value: T, delay = 400): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+================================================================================
+===== FILE: lib\vars.ts =====
+================================================================================
+
+export const ERROR_MAIN_MESSAGE: string = 'Oops. Seems like error. Try again later';
+export const LOADING_MAIN_MESSAGE: string = 'Plaese wait. Downloading data...';
+
+export const LIMIT = 3;
+
+export const SCROLL_THRESHOLD = 300;
+
+export const SELECT_DATE = 'Select a date between today';
+
+================================================================================
+===== FILE: loading.tsx =====
+================================================================================
+
+'use client';
+
+import { ScaleLoader } from 'react-spinners';
+import css from './Loader.module.css';
+import type { CSSProperties } from 'react';
+import { LOADING_MAIN_MESSAGE } from './lib/vars';
+
+const Loading = () => {
+  const override: CSSProperties = {
+    display: 'block',
+    margin: '0 auto',
+    borderColor: '#17862c',
+  };
+
+  //console.log("load")
+
+  return (
+    <div className={css.wrapper}>
+      <ScaleLoader
+        color="#475467"
+        loading={true}
+        cssOverride={override}
+        //size={150}
+        aria-label="Loading...."
+        data-testid="loader"
+      />
+      <span className={css.text}>{LOADING_MAIN_MESSAGE}</span>
+    </div>
+  );
+};
+
+export default Loading;
+
+================================================================================
+===== FILE: mobile_dump.txt =====
+================================================================================
+
+# Project dump
+# Root: D:\_github_repos\MyProjects\campify-traveltrucks-app\app
+
+
+================================================================================
+===== FILE: Loader.module.css =====
+================================================================================
+
+.wrapper {
+	position: fixed;
+	top: 150px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	font-size: 16px;
+	text-align: center;
+	max-width: 600px;
+	margin: 40px auto;
+	padding: 12px 16px;
+	border-radius: 6px;
+	border: 1px solid transparent;
+	color: var(--color-primary);
+	background-color: var(--color-gray-lighter);
+	border-color: var(--background);
+	align-items: center;
+	justify-content: center;
+}
+
+.text {
+	color: var(--foreground);
+}
+================================================================================
+===== FILE: NotFound.module.css =====
+================================================================================
+
+.NotFoundContainer {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    border-radius: 12px;
+    background-color: var(--color-scheme-1-background);
+    box-shadow: inset 17px 17px 48px #c2c7be,
+        inset -17px -17px 48px #ffffff;
+}
+
+.NotFoundTitle {
+    font-size: 40px;
+    font-weight: 700;
+}
+
+.NotFoundImage {
+    width: 250px;
+    border-radius: 8px;
+}
+
+.NotFoundDescr {
+    font-size: 28px;
+    font-weight: 500;
+}
+
+.NotFoundText {
+    font-size: 18px;
+}
+
+.NotFoundLink {
+    text-align: center;
+    margin-top: 32px;
+    cursor: pointer;
+    transition: background-color 0.25s ease, transform 0.1s ease;
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 150%;
+    color: var(--color-neutral-darkest);
+    border: 1px solid var(--color-deco);
+    border-radius: 100px;
+    padding: 6px 12px;
+    background-color: var(--color-deco);
+}
+
+.NotFoundLink:hover {
+    background-color: var(--color-deco-dark);
+    border: 1px solid var(--color-deco-darker);
+    transform: scale(1.03);
+}
+
+.NotFoundLink:active {
+    background-color: var(--color-deco-darkest);
+    border: 1px solid var(--color-deco);
+    transform: scale(1.03);
+}
+================================================================================
+===== FILE: catalog\[id]\page.tsx =====
+================================================================================
+
+import { getCamperById } from '@/app/services/api/api.services';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { Metadata } from 'next';
+import CamperDetailsClient from './pageClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+type PageProps = {
+  params: Promise<{ lang: string; id: string }>;
+};
+
+async function fetchCamper(id: string, queryClient?: QueryClient) {
+  const camper = await getCamperById(id);
+
+  if (queryClient) {
+    await queryClient.prefetchQuery({
+      queryKey: ['CamperById', id],
+      queryFn: () => Promise.resolve(camper),
+    });
+  }
+
+  return camper;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const camper = await fetchCamper(id);
+
+  const title = camper.name ? `Campify: ${camper.name}` : 'Campify: camper details';
+  const description = camper.description ? camper.description : 'About camper';
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `${SITE_URL}/catalog/${id}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/catalog/${id}`,
+      siteName: 'Campify: Travel Trucks',
+      type: 'article',
+      images: camper.gallery[0].original
+        ? [
+            {
+              url: camper.gallery[0].original,
+              width: 1200,
+              height: 630,
+              alt: camper.name,
+            },
+          ]
+        : undefined,
+    },
+  };
+}
+
+async function CamperPage({ params }: PageProps) {
+  const { id } = await params;
+  const queryClient = new QueryClient();
+
+  await fetchCamper(id, queryClient);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <CamperDetailsClient />
+    </HydrationBoundary>
+  );
+}
+
+export default CamperPage;
+
+================================================================================
+===== FILE: catalog\[id]\pageClient.module.css =====
+================================================================================
+
+.pageContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	flex: 1;
+}
+
+.pageLayout {
+	padding: 50px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 44px;
+	align-items: flex-start;
+}
+
+.headerBlock {
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	justify-content: center;
+	min-width: 100%;
+	gap: 28px;
+}
+
+.description {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+	margin-bottom: 16px;
+}
+
+.tabs {
+	display: flex;
+	gap: 40px;
+	min-width: 100%;
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 120%;
+	color: var(--foreground);
+	padding-bottom: 24px;
+	border-bottom: 1px solid var(--color-gray-light);
+}
+
+.tab {
+	position: relative;
+	padding: 12px 0;
+	font-size: 18px;
+	background: none;
+	border: none;
+	cursor: pointer;
+}
+
+.tab.active::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -27px;
+	width: 100%;
+	height: 5px;
+	background: var(--color-button);
+	border-radius: 2px;
+}
+
+.tabContent {
+	min-height: 100%;
+	height: 100%;
+}
+
+.bottomTabs {
+	display: grid;
+	grid-template-columns: 1fr 640px;
+	gap: 40px;
+	width: 100%;
+	align-items: start;
+}
+
+@media (max-width: 768px) {
+	.bottomTabs {
+		grid-template-columns: 1fr;
+	}
+}
+================================================================================
+===== FILE: catalog\[id]\pageClient.tsx =====
+================================================================================
+
+'use client';
+import MessageNoInfo from '@/app/components/MessageNoInfo/MessageNoInfo';
+import { getCamperById } from '@/app/services/api/api.services';
+import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'next/navigation';
+import css from './pageClient.module.css';
+import Loading from '@/app/loading';
+import { ERROR_MAIN_MESSAGE } from '@/app/lib/vars';
+import CamperHeader from '@/app/components/ListItemDetails/ListItemComponents/CamperHeader';
+import CamperGallery from '@/app/components/ListItemDetails/ListItemComponents/CamperGallery';
+import { useState } from 'react';
+import FeaturesList from '@/app/components/ListItemDetails/ListItemComponents/FeaturesList';
+import ReviewsList from '@/app/components/ListItemDetails/ListItemComponents/ReviewsList';
+import { BookingForm } from '@/app/components/ListItemDetails/ListItemComponents/BookingForm';
+import Footer from '@/app/components/Footer/Footer';
+
+function CamperDetailsClient() {
+  const { id } = useParams<{ id: string }>();
+
+  const [activeTab, setActiveTab] = useState<'features' | 'reviews'>('features');
+
+  const {
+    data: camper,
+    isFetching,
+    isError,
+  } = useQuery({
+    queryKey: ['CamperById', id],
+    queryFn: () => getCamperById(id),
+    refetchOnMount: true,
+  });
+
+  if (isError) {
+    return (
+      <div className="container">
+        <MessageNoInfo buttonText="Go back to catalog" text={ERROR_MAIN_MESSAGE} route="/catalog" />
+      </div>
+    );
+  }
+
+  if (isFetching || !camper) {
+    return (
+      <div className="container">
+        <Loading />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <section className="container">
+        <div className={css.pageLayout}>
+          <div className={css.headerBlock}>
+            <CamperHeader item={camper} />
+            <CamperGallery images={camper.gallery} title={camper.name} />
+            <p className={css.description}>{camper.description}</p>
+          </div>
+          <div className={css.tabs}>
+            <button
+              className={`${css.tab} ${activeTab === 'features' ? css.active : ''}`}
+              onClick={() => setActiveTab('features')}
+            >
+              Features
+            </button>
+
+            <button
+              className={`${css.tab} ${activeTab === 'reviews' ? css.active : ''}`}
+              onClick={() => setActiveTab('reviews')}
+            >
+              Reviews
+            </button>
+          </div>
+
+          <div className={css.bottomTabs}>
+            <div className={css.tabContent}>
+              {activeTab === 'features' && <FeaturesList camper={camper} />}
+              {activeTab === 'reviews' && <ReviewsList reviews={camper.reviews} />}
+            </div>
+            <BookingForm camper={camper} />
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
+  );
+}
+
+export default CamperDetailsClient;
+
+================================================================================
+===== FILE: catalog\page.tsx =====
+================================================================================
+
+import React from 'react';
+
+import type { Metadata } from 'next';
+import CatalogClientPage from './pageClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  title: 'Campify Catalog — Browse Camper Vans',
+  description:
+    'Explore the full catalog of camper vans on Campify: Travel Trucks. Filter by location, vehicle type and amenities to find the perfect camper for your trip.',
+  alternates: {
+    canonical: `${SITE_URL}/catalog`,
+  },
+  openGraph: {
+    title: 'Campify Catalog — Camper Vans for Rent',
+    description: 'Browse and filter camper vans by location, type and amenities on Campify: Travel Trucks.',
+    url: `${SITE_URL}/catalog`,
+    siteName: 'Campify: Travel Trucks',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-catalog.jpg`, // теж можна додати потім
+        width: 1200,
+        height: 630,
+        alt: 'Campify catalog of camper vans',
+      },
+    ],
+  },
+};
+
+function CatalogPage() {
+  return (
+    <div>
+      <CatalogClientPage />
+    </div>
+  );
+}
+
+export default CatalogPage;
+
+================================================================================
+===== FILE: catalog\pageClient.module.css =====
+================================================================================
+
+.pageContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+
+	flex: 1;
+}
+
+.pageLayout {
+	padding: 50px 0;
+	display: flex;
+	gap: 64px;
+	align-items: flex-start;
+}
+================================================================================
+===== FILE: catalog\pageClient.tsx =====
+================================================================================
+
+'use client';
+
+import { getCamperList } from '../services/api/api.services';
+import toastMessage, { MyToastType } from '../services/messageService';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
+import Loading from '../loading';
+import ListView from '../components/ListView/ListView';
+import AsideFilterView from '../components/Filter/AsideFilterView';
+import { useCamperFilters } from '../stores/camperFiltersStore';
+import { Button } from '../components/Button/Button';
+import css from './pageClient.module.css';
+import { useEffect, useState } from 'react';
+import { CamperData } from '../services/api/api.types';
+import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
+import Footer from '../components/Footer/Footer';
+
+function CatalogClientPage() {
+  const filters = useCamperFilters(s => s.filters);
+  const clearFilters = useCamperFilters(s => s.clearFilters);
+
+  const [page, setPage] = useState(1);
+  const [campers, setAllCampers] = useState<CamperData[]>([]);
+
+  const { data, isFetching, isError } = useQuery({
+    queryKey: ['TrackListFiltered', filters, page],
+    queryFn: async () => {
+      const res = await getCamperList({ ...filters, page, limit: LIMIT });
+      if (!res) toastMessage(MyToastType.error, 'bad request');
+      return res;
+    },
+    refetchOnMount: false,
+    placeholderData: keepPreviousData,
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!data) {
+        setAllCampers([]);
+        return;
+      }
+
+      if (page === 1) {
+        setAllCampers(data.items);
+      } else {
+        //bad indexes
+        setAllCampers(prev => {
+          const merged = [...prev, ...data.items];
+          const unique = merged.filter((camper, index, self) => index === self.findIndex(c => c.id === camper.id));
+          return unique;
+        });
+      }
+    };
+    fetchData();
+  }, [data, page]);
+
+  useEffect(() => {
+    const fetchPages = async () => {
+      setPage(1);
+    };
+    fetchPages();
+  }, [filters]);
+
+  if (isError) {
+    return (
+      <div className="container">
+        <div className={css.pageLayout}>
+          <MessageNoInfo buttonText="Go back to Home page" text={ERROR_MAIN_MESSAGE} route="/" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <section className="container">
+        <div className={css.pageLayout}>
+          <AsideFilterView total={data?.total || 0} shown={campers.length} isFetching={isFetching} />
+          <div className={css.pageContainer}>
+            {!isFetching && campers.length === 0 && (
+              <MessageNoInfo
+                buttonText="Clear filters"
+                text="No campers found. Try to clear filters."
+                onClick={clearFilters}
+              />
+            )}
+            {campers && campers.length > 0 && <ListView items={campers} />}
+
+            {isFetching && <Loading />}
+            {data && campers.length < data?.total && (
+              <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
+            )}
+          </div>
+        </div>
+      </section>
+      <Footer />
+    </>
+  );
+}
+
+export default CatalogClientPage;
+
+================================================================================
+===== FILE: components\Button\Button.module.css =====
+================================================================================
+
+.button {
+	border-radius: 200px;
+	padding: 16px 60px;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 150%;
+	letter-spacing: -0.01em;
+
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	color: var(--background);
+	background-color: var(--color-button);
+	border: none;
+	text-decoration: none;
+}
+
+
+.primary {
+	color: var(--background);
+	background-color: var(--color-button);
+	border: none;
+}
+
+.primary:hover,
+.primary:focus {
+	background-color: var(--color-button-hover);
+}
+
+.loadMore {
+	color: var(--foreground);
+	background-color: var(--background);
+	border: 1px solid var(--color-primary-light);
+	padding: 14px 50px;
+}
+
+.loadMore:hover,
+.loadMore:focus {
+	border-color: var(--color-button-hover);
+}
+================================================================================
+===== FILE: components\Button\Button.tsx =====
+================================================================================
+
+'use client';
+
+import Link from 'next/link';
+import styles from './Button.module.css';
+
+type ButtonVariant = 'primary' | 'loadMore';
+
+type BaseProps = {
+  label: string;
+  className?: string;
+  variant?: ButtonVariant;
+  isDisabled?: boolean;
+};
+
+type ButtonProps =
+  | (BaseProps & { href: string; onClick?: never; type?: never })
+  | (BaseProps & { href?: undefined; onClick: () => void; type?: 'button' })
+  | (BaseProps & { href?: undefined; onClick?: never; type: 'submit' | 'reset' });
+
+export function Button(props: ButtonProps) {
+  const { label, className, variant = 'primary' } = props;
+
+  const variantClass = styles[variant];
+
+  if ('href' in props && props.href) {
+    return (
+      <Link href={props.href} className={`${styles.button} ${variantClass} ${className || ''}`}>
+        {label}
+      </Link>
+    );
+  }
+
+  if (props.type === 'submit' || props.type === 'reset') {
+    return (
+      <button
+        disabled={props.isDisabled}
+        type={props.type}
+        className={`${styles.button} ${variantClass} ${className || ''}`}
+      >
+        {label}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      disabled={props.isDisabled}
+      type="button"
+      onClick={props.onClick}
+      className={`${styles.button} ${variantClass} ${className || ''}`}
+    >
+      {label}
+    </button>
+  );
+}
+
+================================================================================
+===== FILE: components\DatePickerField\DatePickerField.module.css =====
+================================================================================
+
+.fieldWrapper {
+	border-radius: 12px;
+	position: relative;
+	width: 100%;
+}
+
+.input {
+	border: 1px solid var(--color-gray-soft);
+	text-align: left;
+	border-radius: 12px;
+	padding: 18px;
+	width: 100%;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary-light);
+	background: var(--color-gray-soft);
+}
+
+.inputError {
+	border-color: var(--color-button);
+}
+
+.placeholder {
+	color: rgba(0, 0, 0, 0.55)
+}
+
+
+/*//////////////*/
+/*calendar*/
+.dateInput:focus {
+	outline: 2px solid var(--foreground);
+}
+
+.datePopup {
+	position: absolute;
+	top: calc(100% + 8px);
+	z-index: 100;
+	background: var(--background);
+	border: 1px solid var(--foreground);
+	border-radius: 16px;
+	padding: 16px;
+	width: 276px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.popupArrow {
+	position: absolute;
+	top: -7px;
+	left: 50%;
+	height: 14px;
+	width: 14px;
+	transform: translateX(-50%) rotate(45deg);
+	background: var(--background);
+	border-left: 1px solid var(--foreground);
+	border-top: 1px solid var(--foreground);
+}
+
+
+.calendar {
+	--rdp-accent-color: var(--color-primary-light);
+	--rdp-accent-background-color: var(--color-primary-light);
+	--rdp-outline: none;
+
+	font-family: inherit;
+}
+
+:global(.rdp-caption_label) {
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 120%;
+	text-align: center;
+}
+
+:global(.rdp-nav_button) {
+	background: none;
+	border: none;
+	font-size: 20px;
+	cursor: pointer;
+	color: var(--foreground);
+}
+
+:global(.rdp-nav_button:hover) {
+	opacity: 0.7;
+}
+
+:global(.rdp-head_row) {
+	font-family: "Inter", sans-serif;
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--color-primary-light);
+	margin-bottom: 12px;
+}
+
+:global(.rdp-weekday) {
+	font-family: "Inter", sans-serif;
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 120%;
+	text-align: center;
+	color: var(--color-primary);
+	border-bottom: 1px solid var(--color-primary);
+}
+
+:global(.rdp-row) {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	margin-bottom: 4px;
+
+}
+
+:global(.rdp-day_button) {
+	font-family: "Inter", sans-serif;
+	width: 30px;
+	height: 30px;
+	padding: 0;
+	margin: 2px;
+	border-radius: 50%;
+	font-size: 14px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
+
+/* Ховер */
+:global(.rdp-day_button:hover) {
+	background: var(--color-primary-light);
+	color: var(--background);
+}
+
+/* OUTSIDE DAYS */
+:global(.rdp-day_outside .rdp-day_button) {
+	color: var(--color-primary);
+}
+
+/* SELECTED DAY */
+:global(.rdp-day.rdp-selected .rdp-day_button) {
+	background: var(--color-primary) !important;
+	color: white !important;
+	font-weight: 400;
+}
+
+:global(.rdp-footer) {
+	padding: 12px 16px;
+	color: var(--color-primary);
+	font-size: 14px;
+	border-top: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 0 0 8px 8px;
+	text-align: center;
+}
+================================================================================
+===== FILE: components\DatePickerField\DatePickerField.tsx =====
+================================================================================
+
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { DayPicker, Formatters } from 'react-day-picker';
+import { format } from 'date-fns';
+import 'react-day-picker/dist/style.css';
+import css from './DatePickerField.module.css';
+import { SELECT_DATE } from '@/app/lib/vars';
+import { da } from 'react-day-picker/locale';
+
+interface Props {
+  value: string;
+  onChange: (date: string) => void;
+  error?: string;
+  touched?: boolean;
+}
+
+export function DatePickerField({ value, onChange, error, touched }: Props) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const [placeholder, setPlaceholder] = useState<string>('Booking date*');
+
+  const hasError = !!error && touched;
+
+  const formatters: Partial<Formatters> = {
+    formatWeekdayName: (weekday: Date) => weekday.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(),
+  };
+
+  const TODAY = (() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  })();
+
+  const handleSelect = (date: Date | undefined) => {
+    if (!date) return;
+
+    if (date < TODAY) {
+      setPlaceholder(SELECT_DATE);
+      return;
+    }
+
+    const formatted = format(date, 'dd MMMM yyyy');
+
+    if (formatted !== value) {
+      onChange(formatted);
+    }
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
+
+  return (
+    <div className={css.fieldWrapper} ref={ref}>
+      <button
+        type="button"
+        title="Select a date starting from today"
+        className={`${css.input} ${hasError && css.inputError} ${!value ? css.placeholder : ''}`}
+        onClick={() => setOpen(!open)}
+      >
+        {value ? format(new Date(value), 'dd MMMM yyyy') : placeholder}
+      </button>
+
+      {open && (
+        <div className={css.datePopup}>
+          <div className={css.popupArrow}></div>
+
+          <DayPicker
+            mode="single"
+            selected={value ? new Date(value) : undefined}
+            onSelect={handleSelect}
+            formatters={formatters}
+            weekStartsOn={1}
+            disabled={[{ before: TODAY }]}
+            className={css.calendar}
+            footer={SELECT_DATE}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\FeatureTag\FeatureTag.module.css =====
+================================================================================
+
+.tag {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 12px 16px;
+	background: var(--color-gray-lighter);
+	mix-blend-mode: multiply;
+	border-radius: 20px;
+	font-size: 16px;
+}
+================================================================================
+===== FILE: components\FeatureTag\FeatureTag.tsx =====
+================================================================================
+
+import IconComponent from '../Icon/Icon.component';
+import css from './FeatureTag.module.css';
+
+interface Props {
+  label: string;
+  icon: string;
+}
+
+export function FeatureTag({ label, icon }: Props) {
+  return (
+    <div className={css.tag}>
+      <IconComponent name={icon} size={16} />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\Filter\AsideFilterView.module.css =====
+================================================================================
+
+.aside {
+	max-width: 360px;
+	width: 100%;
+	flex-shrink: 0;
+	position: sticky;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.filters {
+	margin: 40px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+}
+
+.locationTitle {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary-light);
+	margin-bottom: 8px;
+}
+
+.sectionTitle {
+	font-weight: 500;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+}
+
+.blockTitle {
+	font-weight: 600;
+	font-size: 20px;
+	line-height: 120%;
+	color: var(--foreground);
+}
+
+.divider {
+	height: 1px;
+	background: var(--color-gray-light);
+	margin: 24px 0;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+	row-gap: 8px;
+}
+================================================================================
+===== FILE: components\Filter\AsideFilterView.tsx =====
+================================================================================
+
+'use client';
+
+import { CamperForm } from '@/app/services/api/api.types';
+import css from './AsideFilterView.module.css';
+import { FeatureConfig, FeatureKey, FILTERS_CONFIG, FORM_CONFIG } from '@/app/types/filter.types';
+import FilterButton from './FilterButton';
+import { useCamperFilters } from '@/app/stores/camperFiltersStore';
+import { Button } from '../Button/Button';
+import LocationBlock from './LocationBlock';
+
+interface Props {
+  total: number;
+  shown: number;
+  isFetching: boolean;
+}
+
+function AsideFilterView({ shown, total, isFetching }: Props) {
+  const filters = useCamperFilters(s => s.filters);
+  const setFilter = useCamperFilters(s => s.setFilter);
+  const clearFilters = useCamperFilters(s => s.clearFilters);
+
+  return (
+    <aside className={css.aside}>
+      <h3 className={css.locationTitle}>Location</h3>
+      <LocationBlock />
+
+      <div className={css.filters}>
+        {isFetching ? (
+          <h3 className={css.sectionTitle}>Filters: </h3>
+        ) : (
+          <h3 className={css.sectionTitle}>{`Filters: result ${shown} from ${total}`}</h3>
+        )}
+
+        <div className={css.block}>
+          <h4 className={css.blockTitle}>Vehicle equipment</h4>
+          <div className={css.divider}></div>
+
+          <div className={css.grid}>
+            {(Object.entries(FILTERS_CONFIG) as [FeatureKey, FeatureConfig][]).map(([key, cfg]) => (
+              <FilterButton
+                key={key}
+                icon={cfg.icon}
+                label={cfg.label}
+                active={!!filters[key]}
+                onClick={() => setFilter(key, !filters[key])}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className={css.block}>
+          <h4 className={css.blockTitle}>Vehicle type</h4>
+          <div className={css.divider}></div>
+
+          <div className={css.grid}>
+            {Object.entries(FORM_CONFIG).map(([value, cfg]) => (
+              <FilterButton
+                key={value}
+                icon={cfg.icon}
+                label={cfg.label}
+                active={filters.form === value}
+                onClick={() => setFilter('form', value as CamperForm)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      <Button type="button" label="Clear filters" variant="loadMore" onClick={clearFilters} />
+    </aside>
+  );
+}
+
+export default AsideFilterView;
+
+================================================================================
+===== FILE: components\Filter\FilterButton.module.css =====
+================================================================================
+
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 6px;
+  gap: 10px;
+
+  border: 1px solid var(--color-gray-light);
+  border-radius: 12px;
+  min-width: 112px;
+  height: 96px;
+
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: center;
+  color: var(--color-primary-dark);
+
+  background: var(--background);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  border-color: var(--color-primary);
+}
+
+.active {
+  border-color: var(--color-button);
+}
+
+/*.icon {
+  width: 20px;
+  height: 20px;
+}*/
+================================================================================
+===== FILE: components\Filter\FilterButton.tsx =====
+================================================================================
+
+'use client';
+
+import IconComponent from '../Icon/Icon.component';
+import styles from './FilterButton.module.css';
+
+interface Props {
+  label: string;
+  icon: string;
+  active: boolean;
+  onClick: () => void;
+}
+
+export function FilterButton({ label, icon, active, onClick }: Props) {
+  return (
+    <button type="button" className={`${styles.button} ${active ? styles.active : ''}`} onClick={onClick}>
+      <IconComponent name={icon} size={24} />
+      <span className={styles.label}>{label}</span>
+    </button>
+  );
+}
+
+export default FilterButton;
+
+================================================================================
+===== FILE: components\Filter\LocationBlock.module.css =====
+================================================================================
+
+.wrapper {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+
+	background: var(--color-gray-soft);
+	border-radius: 14px;
+	padding: 14px 18px;
+
+	font-size: 16px;
+	color: var(--foreground);
+}
+
+.input {
+	border: none;
+	outline: none;
+	background: var(--color-gray-soft);
+	flex: 1;
+	font-size: 16px;
+	color: var(--foreground);
+}
+
+.input::placeholder {
+	color: var(--foreground);
+}
+================================================================================
+===== FILE: components\Filter\LocationBlock.tsx =====
+================================================================================
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import IconComponent from '../Icon/Icon.component';
+import css from './LocationBlock.module.css';
+import { useCamperFilters } from '@/app/stores/camperFiltersStore';
+import { useDebounce } from '@/app/lib/hooks/useDebounceSearch';
+
+export default function LocationBlock() {
+  const location = useCamperFilters(s => s.filters.location);
+  const setFilter = useCamperFilters(s => s.setFilter);
+
+  const [inputValue, setInputValue] = useState(location || '');
+
+  useEffect(() => {
+    const setInputData = async () => {
+      setInputValue(location || '');
+    };
+    setInputData();
+  }, [location]);
+
+  const debouncedValue = useDebounce(inputValue, 500);
+
+  useEffect(() => {
+    if (debouncedValue === '') {
+      setFilter('location', '');
+      return;
+    }
+    setFilter('location', debouncedValue.trim());
+  }, [debouncedValue, setFilter]);
+
+  return (
+    <div className={css.wrapper}>
+      <IconComponent name="map" size={18} isMap />
+      <input
+        type="text"
+        className={css.input}
+        placeholder="Country, City"
+        value={inputValue}
+        onChange={e => setInputValue(e.target.value)}
+      />
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\Footer\Footer.module.css =====
+================================================================================
+
+.footer {
+  padding: 24px 0;
+  border-top: 1px solid var(--color-gray-light);
+  background: var(--background);
+  margin-top: 14px;
+}
+
+.footerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+}
+
+.text {
+  font-size: 14px;
+  color: var(--color-primary-light);
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--color-primary-light);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.copyright:hover {
+  color: var(--color-button-hover);
+}
+================================================================================
+===== FILE: components\Footer\Footer.tsx =====
+================================================================================
+
+'use client';
+import Link from 'next/link';
+import css from './Footer.module.css';
+
+function Footer() {
+  return (
+    <footer className={css.footer}>
+      <div className="container">
+        <div className={css.footerContainer}>
+          <p className={css.text}>
+            Developed by
+            <Link className={css.text} href="https://github.com/Veron0013" target="_blank">
+              {' '}
+              Igor Vdovyka
+            </Link>
+          </p>
+
+          <p className={css.copyright}>© 2025 All rights reserved</p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+export default Footer;
+
+================================================================================
+===== FILE: components\Header\Header.module.css =====
+================================================================================
+
+.header {
+  background-color: var(--color-gray-soft);
+  color: var(--color-primary-dark);
+}
+
+
+.header_container {
+  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+}
+
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  flex: 1;
+}
+
+.nav_list {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  list-style: none;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+}
+
+.right {
+  flex: 1;
+}
+
+.nav_list_item_link {
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--foreground);
+  transition: color 0.3s ease;
+}
+
+.nav_list_item_link:hover {
+  color: var(--color-button-hover);
+}
+
+.nav_active {
+  color: var(--color-button-hover);
+}
+================================================================================
+===== FILE: components\Header\Header.tsx =====
+================================================================================
+
+'use client';
+import Link from 'next/link';
+import css from './Header.module.css';
+import IconComponent from '../Icon/Icon.component';
+import { usePathname } from 'next/navigation';
+
+function Header() {
+  const pathname = usePathname();
+  return (
+    <header className={css.header}>
+      <div className="container">
+        <div className={css.header_container}>
+          <Link href={'/'} className={css.logo}>
+            <svg width="136" height="16" aria-hidden="true">
+              <use href="/icons/logo.svg"></use>
+            </svg>
+          </Link>
+          <ul className={css.nav_list}>
+            <li className={css.nav_list_item}>
+              <Link className={`${css.nav_list_item_link} ${pathname === '/' ? css.nav_active : ''}`} href="/">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link
+                className={`${css.nav_list_item_link} ${pathname === '/catalog' ? css.nav_active : ''}`}
+                href="/catalog"
+              >
+                Catalog
+              </Link>
+            </li>
+            <li>
+              <Link href="/favorites">
+                <IconComponent name="heart-filled" size={20} />
+              </Link>
+            </li>
+          </ul>
+          <div className={css.right}></div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
+
+================================================================================
+===== FILE: components\Hero\Hero.module.css =====
+================================================================================
+
+.hero {
+	width: 100%;
+	height: calc(100vh - 72px);
+	background-image: image-set(url('/img/hero@1.webp') 1x,
+			url('/img/hero@2.webp') 2x);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	overflow: hidden;
+
+	display: flex;
+	align-items: flex-start;
+}
+
+.title_wrapper {
+	margin-bottom: 40px;
+	min-width: 100%;
+	align-self: flex-start;
+}
+
+.title {
+	font-weight: 600;
+	font-size: 48px;
+	line-height: 1.1;
+	padding-bottom: 16px;
+	color: var(--color-white);
+}
+
+.hero_text {
+	font-weight: 600;
+	font-size: 24px;
+	line-height: 133%;
+	color: var(--color-white);
+}
+================================================================================
+===== FILE: components\Hero\Hero.tsx =====
+================================================================================
+
+import css from './Hero.module.css';
+import { Button } from '../Button/Button';
+
+function Hero() {
+  return (
+    <section className={css.hero}>
+      <div className="container">
+        <div className={css.title_wrapper}>
+          <h1 className={css.title}>Campers of your dreams</h1>
+          <p className={css.hero_text}>You can find everything you want in our catalog</p>
+        </div>
+        <Button label="View now" href="/catalog" />
+      </div>
+    </section>
+  );
+}
+
+export default Hero;
+
+================================================================================
+===== FILE: components\Icon\Icon.component.tsx =====
+================================================================================
+
+interface IconProps {
+  name: string;
+  size: number;
+  isMap?: boolean;
+  onClick?: () => void;
+}
+export function IconComponent({ name, size = 20, isMap, onClick }: IconProps) {
+  const href = isMap ? `/icons/map.svg` : `/icons/icons.svg#${name}`;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      vectorEffect="non-scaling-stroke"
+      onClick={onClick}
+      style={onClick ? { cursor: 'pointer' } : undefined}
+    >
+      <use href={href} />
+    </svg>
+  );
+}
+
+export default IconComponent;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\BookingForm.tsx =====
+================================================================================
+
+'use client';
+
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import css from './CamperDetails.module.css';
+import { Button } from '../../Button/Button';
+import toastMessage, { MyToastType } from '@/app/services/messageService';
+import { CamperData } from '@/app/services/api/api.types';
+import { DatePickerField } from '../../DatePickerField/DatePickerField';
+
+interface Props {
+  camper: CamperData;
+}
+
+const BookingSchema = Yup.object().shape({
+  name: Yup.string().required('Required'),
+  email: Yup.string().email('Invalid email').required('Required'),
+  bookingDate: Yup.date().required('Required'),
+  comment: Yup.string().max(300, 'Too long'),
+});
+
+export function BookingForm({ camper }: Props) {
+  const getInputClass = (error: unknown, touched: boolean | undefined) => {
+    return error && touched ? `${css.input} ${css.inputError}` : css.input;
+  };
+
+  return (
+    <div className={css.wrapper}>
+      <h2 className={css.title}>Book your campervan now</h2>
+      <p className={css.subtitle}>Stay connected! We are always ready to help you.</p>
+
+      <Formik
+        initialValues={{
+          name: '',
+          email: '',
+          bookingDate: '',
+          comment: '',
+        }}
+        validationSchema={BookingSchema}
+        onSubmit={(values, actions) => {
+          const formatted = new Date(values.bookingDate).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          });
+          toastMessage(MyToastType.success, `${camper.name} was booked on ${formatted}. Enjoy your trip!`);
+          actions.resetForm();
+        }}
+      >
+        {({ isSubmitting, values, setFieldValue, errors, touched }) => (
+          <Form className={css.form}>
+            <div className={css.fieldWrapper}>
+              <Field name="name" placeholder="Name*" className={getInputClass(errors.name, touched.name)} />
+              <ErrorMessage name="name" component="div" className={css.error} />
+            </div>
+
+            <div className={css.fieldWrapper}>
+              <Field name="email" placeholder="Email*" className={getInputClass(errors.name, touched.name)} />
+              <ErrorMessage name="email" component="div" className={css.error} />
+            </div>
+
+            <div className={css.fieldWrapper}>
+              <DatePickerField
+                value={values.bookingDate}
+                onChange={date => setFieldValue('bookingDate', date)}
+                error={errors.bookingDate}
+                touched={touched.bookingDate}
+              />
+              <ErrorMessage name="bookingDate" component="div" className={css.error} />
+            </div>
+
+            <div className={css.fieldWrapper}>
+              <Field as="textarea" id="comment" className={css.input} name="comment" placeholder="Comment" rows={6} />
+              <ErrorMessage name="comment" component="div" className={css.error} />
+            </div>
+
+            <Button label="Send" type="submit" variant="primary" isDisabled={isSubmitting} className={css.submit} />
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\CamperDetails.module.css =====
+================================================================================
+
+.header {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  justify-content: start;
+  gap: 8px;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cardPrice {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+
+.itemRates {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaStat {
+  position: relative;
+  display: inline-flex;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--foreground);
+}
+
+
+.metaStat::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 1;
+  width: 100%;
+  height: 1px;
+  background-color: currentColor;
+}
+
+.itemLocation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.locationText {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--foreground);
+}
+
+/*//////////////////////////////////*/
+/*gallery*/
+.listStyle {
+  display: grid;
+  gap: 48px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cardImgWrap {
+  position: relative;
+  width: 100%;
+  height: 312px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/*////////////////////////////////////////////////*/
+/*features*/
+.featuresBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: 44px 52px;
+  background-color: var(--color-gray-soft);
+  min-height: 631px;
+  height: 100%;
+}
+
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.featuresDetails {
+  min-width: 100%;
+}
+
+.blockTitle {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--foreground);
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-gray-light);
+  margin: 24px 0;
+}
+
+.details {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 16px;
+  column-gap: 24px;
+}
+
+.details dt {
+  color: var(--foreground);
+}
+
+.details dd {
+  text-align: right;
+  color: var(--foreground);
+}
+
+.row {
+  display: contents;
+}
+
+/*////////////////////////////*/
+/*reviesws */
+.reviewList {
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+.reviewCard {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  gap: 16px;
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 60px;
+  height: 60px;
+  border-radius: 60px;
+  background: var(--color-gray-lighter);
+
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 133%;
+  color: var(--color-button);
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  margin-bottom: 4px;
+  color: var(--foreground);
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.comment {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--color-primary);
+}
+
+/*////////////////////////*/
+/*booking*/
+.wrapper {
+  border: 1px solid var(--color-gray-light);
+  border-radius: 10px;
+  padding: 44px 57px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 120%;
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--color-primary-light);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 100%;
+  margin-top: 24px;
+}
+
+.fieldWrapper {
+  border-radius: 12px;
+}
+
+.input {
+  font-family: "Inter", sans-serif;
+  border: 1px solid var(--color-gray-soft);
+  border-radius: 12px;
+  padding: 18px;
+  width: 100%;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 150%;
+  color: var(--color-primary-light);
+  background: var(--color-gray-soft);
+}
+
+.submit {
+  margin-top: 10px;
+  width: fit-content;
+  align-self: center;
+}
+
+.error {
+  font-size: 12px;
+  color: var(--color-button);
+}
+
+.inputError {
+  border-color: var(--color-button);
+}
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\CamperGallery.tsx =====
+================================================================================
+
+import { GalleryImage } from '@/app/services/api/api.types';
+import Image from 'next/image';
+import css from './CamperDetails.module.css';
+
+interface Props {
+  images: GalleryImage[];
+  title: string;
+}
+function CamperGallery({ images, title }: Props) {
+  return (
+    <div>
+      <ul className={css.listStyle}>
+        {images.map((item: GalleryImage, index) => {
+          return (
+            <li key={index}>
+              <div className={css.cardImgWrap}>
+                <Image
+                  src={item.original}
+                  alt={title}
+                  width={292}
+                  height={320}
+                  className={css.cardImg}
+                  loading="lazy"
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default CamperGallery;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\CamperHeader.tsx =====
+================================================================================
+
+import css from './CamperDetails.module.css';
+import IconComponent from '../../Icon/Icon.component';
+import { CamperData } from '@/app/services/api/api.types';
+
+interface Props {
+  item: CamperData;
+}
+
+function CamperHeader({ item }: Props) {
+  return (
+    <div className={css.header}>
+      <h3 className={css.cardTitle}>{item.name}</h3>
+      <div className={css.metaRow} role="group" aria-label="Rating and location">
+        <div className={css.itemRates}>
+          <IconComponent name="star-filled" size={20} />
+          <span className={css.metaStat}>{`${item.rating ?? 0}(${item.reviews.length ?? 0} Reviews)`}</span>
+        </div>
+
+        <div className={css.itemLocation}>
+          <IconComponent name="map" size={20} isMap />
+          <span className={css.locationText}>{item.location}</span>
+        </div>
+      </div>
+      <p className={css.cardPrice}>{`€${item.price.toFixed(2)}`}</p>
+    </div>
+  );
+}
+
+export default CamperHeader;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\FeaturesList.tsx =====
+================================================================================
+
+import { CamperData } from '@/app/services/api/api.types';
+import css from './CamperDetails.module.css';
+import { CARD_FEATURES_CONFIG, FORM_CONFIG } from '@/app/types/filter.types';
+import { FeatureTag } from '../../FeatureTag/FeatureTag';
+import MessageNoInfo from '../../MessageNoInfo/MessageNoInfo';
+
+interface Props {
+  camper: CamperData;
+}
+
+function FeaturesList({ camper }: Props) {
+  const formInfo = FORM_CONFIG[camper.form].label;
+
+  const formatUnitValue = (value: string): string => {
+    return value.replace(/(\d)([a-zA-Z])/g, '$1 $2');
+  };
+
+  if (!camper)
+    return <MessageNoInfo buttonText="Home page" text="No fetures found. Maybe you can try later." route="/" />;
+
+  return (
+    <div className={css.featuresBlock}>
+      <div className={css.features}>
+        {CARD_FEATURES_CONFIG.filter(f => camper[f.key] !== undefined && camper[f.key] !== false).map(f => (
+          <FeatureTag key={f.key} icon={f.icon(camper[f.key] as never)} label={f.label(camper[f.key] as never)} />
+        ))}
+      </div>
+      <div className={css.featuresDetails}>
+        <h4 className={css.blockTitle}>Vehicle type</h4>
+        <div className={css.divider}></div>
+        <dl className={css.details}>
+          <div className={css.row}>
+            <dt>Form</dt>
+            <dd>{formInfo}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Length</dt>
+            <dd>{formatUnitValue(camper.length)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Width</dt>
+            <dd>{formatUnitValue(camper.width)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Height</dt>
+            <dd>{formatUnitValue(camper.height)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Tank</dt>
+            <dd>{formatUnitValue(camper.tank)}</dd>
+          </div>
+
+          <div className={css.row}>
+            <dt>Consumption</dt>
+            <dd>{camper.consumption}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  );
+}
+
+export default FeaturesList;
+
+================================================================================
+===== FILE: components\ListItemDetails\ListItemComponents\ReviewsList.tsx =====
+================================================================================
+
+import { CamperReview } from '@/app/services/api/api.types';
+import css from './CamperDetails.module.css';
+import IconComponent from '../../Icon/Icon.component';
+import MessageNoInfo from '../../MessageNoInfo/MessageNoInfo';
+import toastMessage, { MyToastType } from '@/app/services/messageService';
+
+interface Props {
+  reviews: CamperReview[];
+}
+
+function ReviewsList({ reviews }: Props) {
+  const handleAddComment = () => {
+    toastMessage(MyToastType.loading, 'Sorry, this feature under maintenance');
+  };
+  if (!reviews.length)
+    return (
+      <MessageNoInfo
+        buttonText="Add a comment"
+        text="No comments yet. Maybe you can add yours?"
+        onClick={handleAddComment}
+      />
+    );
+  return (
+    <div>
+      <ul className={css.reviewList}>
+        {reviews.map((item: CamperReview, index) => {
+          return (
+            <li key={item.reviewer_name + index} className={css.reviewCard}>
+              <div className={css.reviewHeader}>
+                <div className={css.avatar}>{item.reviewer_name.charAt(0).toUpperCase()}</div>
+
+                <div className={css.headerInfo}>
+                  <p className={css.name}>{item.reviewer_name}</p>
+
+                  <div className={css.stars}>
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const diff = (item.reviewer_rating ?? 0) - i;
+                      return diff > 0 ? (
+                        <IconComponent key={i} name="star-filled" size={16} />
+                      ) : (
+                        <IconComponent key={i} name="star" size={16} />
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <p className={css.comment}>{item.comment}</p>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default ReviewsList;
+
+================================================================================
+===== FILE: components\ListItem\ListItem.module.css =====
+================================================================================
+
+.card {
+	display: flex;
+	gap: 24px;
+	border: 1px solid var(--color-gray-light);
+	border-radius: 20px;
+	padding: 24px;
+}
+
+.cardImgLink {
+	flex-shrink: 0;
+}
+
+.cardImgWrap {
+	width: 292px;
+	height: 380px;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.cardImg {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: 25%;
+}
+
+.cardBottom {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.cardTitle {
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--foreground);
+
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cardPrice {
+	font-size: 24px;
+	font-weight: 600;
+	color: var(--foreground);
+}
+
+.header_left {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-shrink: 0;
+}
+
+
+.metaRow {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 24px;
+}
+
+.itemRates {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.metaStat {
+	position: relative;
+	display: inline-flex;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--foreground);
+}
+
+
+.metaStat::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: 1;
+	width: 100%;
+	height: 1px;
+	background-color: currentColor;
+}
+
+.itemLocation {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.locationText {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--foreground);
+}
+
+.descriptionBox {
+	position: relative;
+	max-width: 100%;
+	overflow: hidden;
+	margin-bottom: 24px;
+}
+
+.descriptionBox::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 40%;
+	height: 24px;
+	pointer-events: none;
+	background: linear-gradient(to right, transparent, var(--background));
+}
+
+.description {
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 150%;
+	color: var(--color-primary);
+
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 24px;
+}
+
+.cardActions {
+	margin-top: auto;
+	display: flex;
+}
+================================================================================
+===== FILE: components\ListItem\ListItem.tsx =====
+================================================================================
+
+import { CamperData } from '@/app/services/api/api.types';
+import Image from 'next/image';
+import Link from 'next/link';
+import css from './ListItem.module.css';
+import IconComponent from '../Icon/Icon.component';
+import { Button } from '../Button/Button';
+import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
+import { FeatureTag } from '../FeatureTag/FeatureTag';
+import { useFavoritesStore } from '@/app/stores/campersFavoritesStore';
+
+interface ItemProps {
+  item: CamperData;
+}
+
+function ListItem({ item }: ItemProps) {
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+
+  return (
+    <article className={css.card} data-card="camper-card">
+      <Link href={`/catalog/${item.id}`} className={css.cardImgLink}>
+        <div className={css.cardImgWrap}>
+          <Image
+            src={item.gallery[0].thumb}
+            alt={item.name}
+            width={292}
+            height={320}
+            className={css.cardImg}
+            loading="lazy"
+          />
+        </div>
+      </Link>
+
+      <div className={css.cardBottom}>
+        <div className={css.header}>
+          <h3 className={css.cardTitle}>{item.name}</h3>
+          <div className={css.header_left}>
+            <p className={css.cardPrice}>{`€${item.price.toFixed(2)}`}</p>
+            <IconComponent
+              name={isFavorite(item.id) ? 'heart-filled' : 'heart'}
+              size={20}
+              onClick={() => toggleFavorite(item)}
+            />
+          </div>
+        </div>
+
+        <div className={css.metaRow} role="group" aria-label="Rating and location">
+          <div className={css.itemRates}>
+            <IconComponent name="star-filled" size={20} />
+            <span className={css.metaStat}>{`${item.rating ?? 0}(${item.reviews.length ?? 0} Reviews)`}</span>
+          </div>
+
+          <div className={css.itemLocation}>
+            <IconComponent name="map" size={20} isMap />
+            <span className={css.locationText}>{item.location}</span>
+          </div>
+        </div>
+
+        <div className={css.descriptionBox} aria-label="Description">
+          <p className={css.description}>{item.description}</p>
+        </div>
+
+        <div className={css.features}>
+          {CARD_FEATURES_CONFIG.filter(f => item[f.key] !== undefined && item[f.key] !== false).map(f => (
+            <FeatureTag key={f.key} icon={f.icon(item[f.key] as never)} label={f.label(item[f.key] as never)} />
+          ))}
+        </div>
+
+        <div className={css.cardActions}>
+          <Button href={`/catalog/${item.id}`} className={css.cardCta} label="Show more" />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export default ListItem;
+
+================================================================================
+===== FILE: components\ListView\ListView.module.css =====
+================================================================================
+
+.listStyle {
+	display: flex;
+	flex-direction: column;
+	gap: 32px;
+	min-width: 100%;
+	margin-bottom: 40px;
+}
+================================================================================
+===== FILE: components\ListView\ListView.tsx =====
+================================================================================
+
+import { CamperData } from '@/app/services/api/api.types';
+import css from './ListView.module.css';
+import ListItem from '../ListItem/ListItem';
+
+type Props = {
+  items: CamperData[];
+};
+
+function ListView({ items }: Props) {
+  return (
+    <div>
+      <ul className={css.listStyle}>
+        {items.map((item: CamperData) => {
+          return (
+            <li key={item.id} id={item.id.toString()}>
+              <ListItem item={item} />
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default ListView;
+
+================================================================================
+===== FILE: components\MessageNoInfo\MessageNoInfo.module.css =====
+================================================================================
+
+.message_wrapper {
+  min-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.message_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+  border-radius: 16px;
+  width: 100%;
+  background-color: var(--background);
+  padding: 24px 16px;
+}
+
+.message_text {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 600;
+  text-align: center;
+  color: var(--foreground);
+}
+
+/* DESKTOP */
+@media (min-width: 1440px) {
+  .message_container {
+    width: 640px;
+  }
+
+  .message_text {
+    max-width: 600px;
+    font-size: 18px;
+  }
+
+}
+================================================================================
+===== FILE: components\MessageNoInfo\MessageNoInfo.tsx =====
+================================================================================
+
+'use client';
+import { useRouter } from 'next/navigation';
+import styles from './MessageNoInfo.module.css';
+import { Button } from '../Button/Button';
+
+interface MessageNoInfoProps {
+  text: string;
+  buttonText: string;
+  route?: string;
+  onClick?: () => void;
+}
+
+export default function MessageNoInfo({ text, buttonText, route = '/', onClick }: MessageNoInfoProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onClick) return onClick();
+
+    router.back();
+    setTimeout(() => router.push(route), 50);
+  };
+
+  return (
+    <div className={styles.message_wrapper}>
+      <div className={styles.message_container}>
+        <p className={styles.message_text}>{text}</p>
+
+        <Button type="button" label={buttonText} variant="loadMore" onClick={handleClick} />
+      </div>
+    </div>
+  );
+}
+
+================================================================================
+===== FILE: components\ScrollToTop\ScrollToTop.module.css =====
+================================================================================
+
+.scrollToTopBtn {
+	position: fixed;
+	right: 32px;
+	bottom: 32px;
+	width: 54px;
+	height: 54px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border: none;
+	border-radius: 50%;
+	background-color: var(--color-primary);
+	cursor: pointer;
+	z-index: 999;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+
+	opacity: 0;
+	transform: translateY(12px) scale(0.9);
+	pointer-events: none;
+
+	transition:
+		opacity 0.3s ease-out,
+		transform 0.3s ease-out;
+}
+
+.scrollToTopBtnVisible {
+	opacity: 1;
+	transform: translateY(0) scale(1);
+	pointer-events: auto;
+}
+
+.scrollToTopBtn:hover {
+	transform: translateY(-2px) scale(1.03);
+}
+
+@media (min-width: 1440px) {
+	.scrollToTopBtn {
+		right: calc(50% - 700px);
+	}
+}
+================================================================================
+===== FILE: components\ScrollToTop\ScrollToTop.tsx =====
+================================================================================
+
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import css from './ScrollToTop.module.css';
+import { SCROLL_THRESHOLD } from '@/app/lib/vars';
+import IconComponent from '../Icon/Icon.component';
+
+export default function ScrollToTop() {
+  const [visible, setVisible] = useState(false);
+  const lastScrollableRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const handleScrollToTop = (event: Event) => {
+      const target = event.target as HTMLElement | Document;
+      const scrollingElement = document.scrollingElement || document.documentElement;
+
+      const yPos = scrollingElement ? scrollingElement.scrollTop : 0;
+      let yTarget = 0;
+
+      if (target instanceof HTMLElement) {
+        if (target.scrollHeight > target.clientHeight + 4) {
+          yTarget = target.scrollTop;
+          lastScrollableRef.current = target;
+        }
+      }
+
+      const y = Math.max(yPos, yTarget);
+      setVisible(y > SCROLL_THRESHOLD);
+    };
+
+    document.addEventListener('scroll', handleScrollToTop, {
+      passive: true,
+      capture: true,
+    });
+    handleScrollToTop(new Event('scroll'));
+
+    return () => {
+      document.removeEventListener('scroll', handleScrollToTop, true);
+    };
+  }, []);
+
+  const handleClick = () => {
+    const scrollingElement = document.scrollingElement || document.documentElement;
+
+    if (scrollingElement) {
+      scrollingElement.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (lastScrollableRef.current) {
+      lastScrollableRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      aria-label="Scroll to top"
+      className={`${css.scrollToTopBtn} ${visible ? css.scrollToTopBtnVisible : ''}`}
+    >
+      <IconComponent name="scroll" size={60} />
+    </button>
+  );
+}
+
+================================================================================
+===== FILE: components\TanStackProvider\TanStackProvider.tsx =====
+================================================================================
+
+'use client';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
+
+export default function TanStackProvider({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+================================================================================
+===== FILE: favorites\page.tsx =====
+================================================================================
+
+import React from 'react';
+
+import type { Metadata } from 'next';
+import FavoritesClientPage from './pageClient';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  title: 'Campify Catalog — Browse Camper Vans',
+  description:
+    'Explore the full catalog of camper vans on Campify: Travel Trucks. Filter by location, vehicle type and amenities to find the perfect camper for your trip.',
+  alternates: {
+    canonical: `${SITE_URL}/catalog`,
+  },
+  openGraph: {
+    title: 'Campify Catalog — Camper Vans for Rent',
+    description: 'Browse and filter camper vans by location, type and amenities on Campify: Travel Trucks.',
+    url: `${SITE_URL}/catalog`,
+    siteName: 'Campify: Travel Trucks',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-catalog.jpg`, // теж можна додати потім
+        width: 1200,
+        height: 630,
+        alt: 'Campify catalog of camper vans',
+      },
+    ],
+  },
+};
+
+function page() {
+  return (
+    <div>
+      <FavoritesClientPage />
+    </div>
+  );
+}
+
+export default page;
+
+================================================================================
+===== FILE: favorites\pageClient.tsx =====
+================================================================================
+
+'use client';
+import css from '../catalog/pageClient.module.css';
+import ListView from '../components/ListView/ListView';
+import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
+import { useFavoritesStore } from '../stores/campersFavoritesStore';
+
+function FavoritesClientPage() {
+  const favoriteCampers = useFavoritesStore(s => s.favorites);
+  return (
+    <section className="container">
+      <div className={css.pageLayout}>
+        {favoriteCampers.length === 0 && (
+          <MessageNoInfo
+            buttonText="Go to catalog"
+            text="No campers found. Try to select one on catalog page."
+            route="/catalog"
+          />
+        )}
+        {favoriteCampers.length > 0 && <ListView items={favoriteCampers} />}
+      </div>
+    </section>
+  );
+}
+
+export default FavoritesClientPage;
+
+================================================================================
+===== FILE: globals.css =====
+================================================================================
+
+/*@import "tailwindcss";*/
+
+:root {
+  --color-primary-dark: #101828;
+  --color-primary: #475467;
+  --color-primary-light: #6c717b;
+
+  --color-button: #e44848;
+  --color-button-hover: #d84343;
+  --color-warning: #ffc531;
+
+  --color-gray-light: #dadde1;
+  --color-gray-lighter: #f2f4f7;
+  --color-gray-soft: #f7f7f7;
+  --color-white: #ffffff;
+
+  --background: var(--color-white);
+  --foreground: var(--color-primary-dark);
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /*--background: var(--color-primary);
+    --foreground: var(--color-gray-light);*/
+    --background: var(--color-white);
+    --foreground: var(--color-primary-dark);
+
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Inter, sans-serif;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  height: 100%;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+}
+
+li {
+  list-style: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+.container {
+  min-width: 320px;
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 0 20px;
+  overflow-y: hidden;
+}
+
+.visually_hidden {
+  opacity: 0;
+  height: 0;
+  pointer-events: none;
+  visibility: hidden;
+  display: none;
+}
+
+@media screen and (min-width: 768px) {
+  .container {
+    max-width: 768px;
+    padding: 0 32px;
+  }
+}
+
+@media screen and (min-width: 1440px) {
+  .container {
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+}
+================================================================================
+===== FILE: layout.tsx =====
+================================================================================
+
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Loading from './loading';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { Toaster } from 'react-hot-toast';
+import { Suspense } from 'react';
+import TanStackProvider from './components/TanStackProvider/TanStackProvider';
+import Header from './components/Header/Header';
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import Footer from './components/Footer/Footer';
+
+const interSans = Inter({
+  variable: '--font-inter',
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  preload: true,
+});
+
+export const metadata: Metadata = {
+  title: 'Create Next App',
+  description: 'Generated by create next app',
+  icons: {
+    icon: '/favicon.png',
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en" data-scroll-behavior="smooth" data-theme="light" suppressHydrationWarning>
+      <body className={`${interSans.variable} antialiased`}>
+        <TanStackProvider>
+          <div className="layout">
+            <Suspense fallback={<Loading />}>
+              <Header />
+              {children}
+            </Suspense>
+            <ScrollToTop />
+          </div>
+          <Toaster />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </TanStackProvider>
+      </body>
+    </html>
+  );
+}
+
+================================================================================
+===== FILE: lib\hooks\useDebounceSearch.ts =====
+================================================================================
+
+import { useEffect, useState } from 'react';
+
+export function useDebounce<T>(value: T, delay = 400): T {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}
+
+================================================================================
+===== FILE: lib\vars.ts =====
+================================================================================
+
+export const ERROR_MAIN_MESSAGE: string = 'Oops. Seems like error. Try again later';
+export const LOADING_MAIN_MESSAGE: string = 'Plaese wait. Downloading data...';
+
+export const LIMIT = 3;
+
+export const SCROLL_THRESHOLD = 300;
+
+export const SELECT_DATE = 'Select a date between today';
+
+================================================================================
+===== FILE: loading.tsx =====
+================================================================================
+
+'use client';
+
+import { ScaleLoader } from 'react-spinners';
+import css from './Loader.module.css';
+import type { CSSProperties } from 'react';
+import { LOADING_MAIN_MESSAGE } from './lib/vars';
+
+const Loading = () => {
+  const override: CSSProperties = {
+    display: 'block',
+    margin: '0 auto',
+    borderColor: '#17862c',
+  };
+
+  //console.log("load")
+
+  return (
+    <div className={css.wrapper}>
+      <ScaleLoader
+        color="#475467"
+        loading={true}
+        cssOverride={override}
+        //size={150}
+        aria-label="Loading...."
+        data-testid="loader"
+      />
+      <span className={css.text}>{LOADING_MAIN_MESSAGE}</span>
+    </div>
+  );
+};
+
+export default Loading;
+
+================================================================================
+===== FILE: not-found.tsx =====
+================================================================================
+
+import { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import css from './NotFound.module.css';
+
+export const metadata: Metadata = {
+  title: `404 - Сторінку на Clothica не знайдено`,
+  description: 'Такої сторінки не існує.',
+  openGraph: {
+    title: `404 - Сторінку на Clothica не знайдено`,
+    description: 'Такої сторінки не існує.',
+    url: `https://clothica-team-04-frontend.vercel.app/`,
+    siteName: 'Clothica',
+    type: 'website',
+  },
+};
+
+const NotFound = () => {
+  return (
+    <div className={css.NotFoundContainer}>
+      <h1 className={css.NotFoundTitle}>OOPS!!!</h1>
+      <p className={css.NotFoundTitle}>404</p>
+      <h3 className={css.NotFoundDescr}>Page not found</h3>
+      <p className={css.NotFoundText}>try go Home Page</p>
+
+      <Link href="/" className={css.NotFoundLink}>
+        Home Page
+      </Link>
+    </div>
+  );
+};
+
+export default NotFound;
+
+================================================================================
+===== FILE: page.tsx =====
+================================================================================
+
+import { Metadata } from 'next';
+import Hero from './components/Hero/Hero';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+
+export const metadata: Metadata = {
+  title: 'Campify: Travel Trucks — Camper Van Rentals in Ukraine',
+  description:
+    'Campify: Travel Trucks is a modern platform for browsing and booking camper vans across Ukraine. Discover comfortable and fully-equipped campers for your next road trip.',
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: 'Campify: Travel Trucks — Camper Van Rentals in Ukraine',
+    description:
+      'Browse, filter and book camper vans across Ukraine with Campify: Travel Trucks. Plan your next adventure with fully-equipped campers.',
+    url: SITE_URL,
+    siteName: 'Campify: Travel Trucks',
+    type: 'website',
+    images: [
+      {
+        url: `${SITE_URL}/og-home.jpg`,
+        width: 1200,
+        height: 630,
+        alt: 'Campify: Travel Trucks — camper vans for rent',
+      },
+    ],
+  },
+};
+
+export default function Home() {
+  return (
+    <section className="main">
+      <Hero />
+    </section>
+  );
+}
+
+================================================================================
+===== FILE: services\api\api.services.ts =====
+================================================================================
+
+import { CamperData, CamperFilterData, CampersResponse } from './api.types';
+import { mainApi } from './mainApi';
+
+//
+export const getCamperList = async (searchParams: CamperFilterData): Promise<CampersResponse> => {
+  const response = await mainApi.get('/campers', { params: searchParams });
+  return response.data;
+};
+
+export const getCamperById = async (id: string): Promise<CamperData> => {
+  const response = await mainApi.get(`/campers/${id}`);
+  return response.data;
+};
+
+================================================================================
+===== FILE: services\api\api.types.ts =====
+================================================================================
+
+//api types
+export enum Transmission {
+  AUTOMATIC = 'automatic',
+  MANUAL = 'manual',
+}
+
+export enum EngineType {
+  DIESEL = 'diesel',
+  PETROL = 'petrol',
+  HYBRID = 'hybrid',
+}
+
+export type CamperForm = 'alcove' | 'fullyIntegrated' | 'panelTruck';
+
+export interface GalleryImage {
+  thumb: string;
+  original: string;
+}
+
+export interface CamperReview {
+  reviewer_name: string;
+  reviewer_rating: number;
+  comment: string;
+}
+
+export interface CampersResponse {
+  total: number;
+  items: CamperData[];
+}
+
+export interface CamperData {
+  id: string;
+  name: string;
+  price: number;
+  rating: number;
+  location: string;
+  description: string;
+
+  form: string;
+
+  length: string;
+  width: string;
+  height: string;
+
+  tank: string;
+  consumption: string;
+
+  transmission: Transmission;
+  engine: EngineType;
+
+  AC: boolean;
+  bathroom: boolean;
+  kitchen: boolean;
+  TV: boolean;
+  radio: boolean;
+  refrigerator: boolean;
+  microwave: boolean;
+  gas: boolean;
+  water: boolean;
+  gallery: GalleryImage[];
+  reviews: CamperReview[];
+}
+
+export interface CamperFeatureData {
+  form?: string;
+  transmission?: Transmission;
+  engine?: EngineType;
+  AC?: boolean;
+  bathroom?: boolean;
+  kitchen?: boolean;
+  TV?: boolean;
+  radio?: boolean;
+  refrigerator?: boolean;
+  microwave?: boolean;
+  gas?: boolean;
+  water?: boolean;
+}
+
+export interface CamperFilterData {
+  location?: string;
+  form?: string;
+  transmission?: Transmission;
+  engine?: EngineType;
+  AC?: boolean;
+  bathroom?: boolean;
+  kitchen?: boolean;
+  TV?: boolean;
+  radio?: boolean;
+  refrigerator?: boolean;
+  microwave?: boolean;
+  gas?: boolean;
+  water?: boolean;
+  limit?: number;
+  page?: number;
+}
+
+================================================================================
+===== FILE: services\api\mainApi.ts =====
+================================================================================
+
+import axios, { AxiosError } from 'axios';
+
+export type ApiError = AxiosError<{
+  error: string;
+}>;
+
+export const mainApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_PROXY_API_URL,
+});
+
+================================================================================
+===== FILE: services\messageService.ts =====
+================================================================================
+
+import { toast, type ToastPosition } from 'react-hot-toast';
+
+export enum MyToastType {
+  success = 'success',
+  error = 'error',
+  loading = 'loading',
+  custom = 'custom',
+}
+
+interface ToastProps {
+  duration: number;
+  position: ToastPosition;
+}
+
+export default function toastMessage(toastType: MyToastType, text: string) {
+  const toastProps: ToastProps = {
+    duration: 3000,
+    position: 'top-center',
+  };
+
+  return toast[toastType](text, toastProps);
+}
+
+================================================================================
+===== FILE: stores\camperFiltersStore.ts =====
+================================================================================
+
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { CamperFilterData } from '../services/api/api.types';
+
+interface CamperFiltersStore {
+  filters: CamperFilterData;
+
+  setFilter: <Key extends keyof CamperFilterData>(key: Key, value: CamperFilterData[Key]) => void;
+
+  clearFilters: () => void;
+}
+
+export const useCamperFilters = create<CamperFiltersStore>()(
+  persist(
+    set => ({
+      filters: {},
+
+      setFilter: (key, value) =>
+        set(state => {
+          const next: CamperFilterData = { ...state.filters };
+
+          if (value === undefined || value === '' || value === false) {
+            delete next[key];
+          } else {
+            next[key] = value;
+          }
+
+          return { filters: next };
+        }),
+
+      clearFilters: () => set({ filters: {} }),
+    }),
+    {
+      name: 'camper-filters',
+      partialize: state => ({
+        filters: state.filters,
+      }),
+    }
+  )
+);
+
+================================================================================
+===== FILE: stores\campersFavoritesStore.ts =====
+================================================================================
+
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { CamperData } from '../services/api/api.types';
+
+interface FavoritesStore {
+  favorites: CamperData[];
+
+  toggleFavorite: (camper: CamperData) => void;
+  isFavorite: (id: string) => boolean;
+  removeFavorite: (id: string) => void;
+  clearFavorites: () => void;
+}
+
+export const useFavoritesStore = create<FavoritesStore>()(
+  persist(
+    (set, get) => ({
+      favorites: [],
+
+      toggleFavorite: camper =>
+        set(state => {
+          const exists = state.favorites.some(f => f.id === camper.id);
+
+          return {
+            favorites: exists ? state.favorites.filter(f => f.id !== camper.id) : [...state.favorites, camper],
+          };
+        }),
+
+      isFavorite: id => get().favorites.some(f => f.id === id),
+
+      removeFavorite: id =>
+        set(state => ({
+          favorites: state.favorites.filter(f => f.id !== id),
+        })),
+
+      clearFavorites: () => set({ favorites: [] }),
+    }),
+
+    {
+      name: 'favorites-campers',
+    }
+  )
+);
+
+================================================================================
+===== FILE: stores\campersListStore.ts =====
+================================================================================
+
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { CamperData } from '../services/api/api.types';
+
+interface CampersStore {
+  campers: CamperData[];
+  visibleCount: number;
+  isPaginationLoading: boolean;
+
+  startLoading: () => void;
+  finishLoading: () => void;
+
+  resetResults: () => void;
+  setCampers: (list: CamperData[]) => void;
+  showMore: (count?: number) => void;
+}
+
+export const useCampersStore = create<CampersStore>()(
+  persist(
+    set => ({
+      campers: [],
+      visibleCount: 3,
+      isPaginationLoading: false,
+
+      startLoading: () => set({ isPaginationLoading: true }),
+      finishLoading: () => set({ isPaginationLoading: false }),
+
+      resetResults: () =>
+        set({
+          campers: [],
+          visibleCount: 3,
+        }),
+
+      setCampers: list =>
+        set({
+          campers: list,
+        }),
+
+      showMore: (count = 3) =>
+        set(state => ({
+          visibleCount: state.visibleCount + count,
+        })),
+    }),
+
+    {
+      name: 'campers-store',
+      partialize: state => ({
+        visibleCount: state.visibleCount,
+      }),
+    }
+  )
+);
+
+================================================================================
+===== FILE: types\filter.types.ts =====
+================================================================================
+
+import { EngineType, Transmission } from '../services/api/api.types';
+
+// ---- FORMATTER ----
+const formatLabel = (value: string): string =>
+  value
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+
+// ---- BOOLEAN FEATURES ----
+export const BOOLEAN_FEATURES = [
+  { key: 'AC', label: 'AC', icon: 'ac' },
+  { key: 'bathroom', label: 'Bathroom', icon: 'bathroom' },
+  { key: 'kitchen', label: 'Kitchen', icon: 'kitchen' },
+  { key: 'TV', label: 'TV', icon: 'tv' },
+  { key: 'radio', label: 'Radio', icon: 'radio' },
+  { key: 'refrigerator', label: 'Refrigerator', icon: 'refrigerator' },
+  { key: 'microwave', label: 'Microwave', icon: 'microwave' },
+  { key: 'gas', label: 'Gas', icon: 'gas' },
+  { key: 'water', label: 'Water', icon: 'water' },
+] as const;
+
+export type BooleanFeatureKey = (typeof BOOLEAN_FEATURES)[number]['key'];
+export type FeatureKey = BooleanFeatureKey;
+export type FeatureConfig = {
+  label: string;
+  icon: string;
+};
+
+// ---- FORM CONFIG ----
+export const FORM_CONFIG: Record<string, { label: string; icon: string }> = {
+  alcove: { label: 'Panel truck', icon: 'alcove' },
+  fullyIntegrated: { label: 'Fully Integrated', icon: 'fullyIntegrated' },
+  panelTruck: { label: 'Van', icon: 'panelTruck' },
+};
+
+// ---- FILTERS CONFIG ----
+export const FILTERS_CONFIG: Record<FeatureKey, FeatureConfig> = Object.fromEntries(
+  BOOLEAN_FEATURES.map(f => [
+    f.key,
+    {
+      label: f.label,
+      icon: f.icon,
+    },
+  ])
+) as Record<FeatureKey, FeatureConfig>;
+
+export const CARD_FEATURES_CONFIG = [
+  {
+    key: 'form',
+    icon: (v: string) => FORM_CONFIG[v].icon,
+    label: (v: string) => FORM_CONFIG[v].label,
+  },
+  {
+    key: 'engine',
+    icon: () => 'diesel',
+    label: (v: EngineType) => formatLabel(v),
+  },
+  {
+    key: 'transmission',
+    icon: () => 'automatic',
+    label: (v: Transmission) => formatLabel(v),
+  },
+
+  ...BOOLEAN_FEATURES.map(f => ({
+    key: f.key,
+    icon: () => f.icon,
+    label: () => f.label,
+  })),
+] as const;

@@ -20,6 +20,10 @@ const BookingSchema = Yup.object().shape({
 });
 
 export function BookingForm({ camper }: Props) {
+  const getInputClass = (error: unknown, touched: boolean | undefined) => {
+    return error && touched ? `${css.input} ${css.inputError}` : css.input;
+  };
+
   return (
     <div className={css.wrapper}>
       <h2 className={css.title}>Book your campervan now</h2>
@@ -39,24 +43,29 @@ export function BookingForm({ camper }: Props) {
             day: 'numeric',
             year: 'numeric',
           });
-          toastMessage(MyToastType.success, `${camper.name} was booked on ${formatted}. Enjoi your trip!`);
+          toastMessage(MyToastType.success, `${camper.name} was booked on ${formatted}. Enjoy your trip!`);
           actions.resetForm();
         }}
       >
-        {({ isSubmitting, values, setFieldValue }) => (
+        {({ isSubmitting, values, setFieldValue, errors, touched }) => (
           <Form className={css.form}>
             <div className={css.fieldWrapper}>
-              <Field name="name" placeholder="Name*" className={css.input} />
+              <Field name="name" placeholder="Name*" className={getInputClass(errors.name, touched.name)} />
               <ErrorMessage name="name" component="div" className={css.error} />
             </div>
 
             <div className={css.fieldWrapper}>
-              <Field name="email" placeholder="Email*" className={css.input} />
+              <Field name="email" placeholder="Email*" className={getInputClass(errors.name, touched.name)} />
               <ErrorMessage name="email" component="div" className={css.error} />
             </div>
 
             <div className={css.fieldWrapper}>
-              <DatePickerField value={values.bookingDate} onChange={date => setFieldValue('bookingDate', date)} />
+              <DatePickerField
+                value={values.bookingDate}
+                onChange={date => setFieldValue('bookingDate', date)}
+                error={errors.bookingDate}
+                touched={touched.bookingDate}
+              />
               <ErrorMessage name="bookingDate" component="div" className={css.error} />
             </div>
 

@@ -7,6 +7,8 @@ import { Toaster } from 'react-hot-toast';
 import { Suspense } from 'react';
 import TanStackProvider from './components/TanStackProvider/TanStackProvider';
 import Header from './components/Header/Header';
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import Footer from './components/Footer/Footer';
 
 const interSans = Inter({
   variable: '--font-inter',
@@ -37,6 +39,7 @@ export default function RootLayout({
               <Header />
               {children}
             </Suspense>
+            <ScrollToTop />
           </div>
           <Toaster />
           <ReactQueryDevtools initialIsOpen={false} />
