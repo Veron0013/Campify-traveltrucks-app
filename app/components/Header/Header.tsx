@@ -12,7 +12,7 @@ function Header() {
         <div className={css.header_container}>
           <Link href={'/'} className={css.logo}>
             <svg width="136" height="16" aria-hidden="true">
-              <use href="/icons/logo.svg"></use>
+              <use href="/icons/mainLogo.svg"></use>
             </svg>
           </Link>
           <ul className={css.nav_list}>
