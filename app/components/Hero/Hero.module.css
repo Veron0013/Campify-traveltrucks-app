@@ -1,5 +1,6 @@
 .hero {
 	width: 100%;
+	height: calc(100vh - 84px);
 	background-image: image-set(url('/img/hero@1.webp') 1x,
 			url('/img/hero@2.webp') 2x);
 	background-size: cover;

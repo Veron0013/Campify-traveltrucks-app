@@ -71,14 +71,23 @@
 
 .bottomTabs {
 	display: grid;
-	grid-template-columns: 1fr 640px;
 	gap: 40px;
 	width: 100%;
 	align-items: start;
+	grid-template-columns: 1fr;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
 	.bottomTabs {
-		grid-template-columns: 1fr;
+		grid-template-columns: 1fr 360px;
+		gap: 10px;
 	}
+}
+
+@media (min-width: 1440px) {
+	.bottomTabs {
+		grid-template-columns: 1fr 640px;
+		gap: 40px;
+	}
+
 }

@@ -98,6 +98,13 @@
 
 @media (min-width: 768px) {
   .listStyle {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .listStyle {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 48px;
   }
@@ -119,6 +126,14 @@
 }
 
 @media (min-width: 768px) {
+  .featuresBlock {
+    padding: 14px 12px;
+    background-color: var(--color-gray-soft);
+    /*min-height: 631px;*/
+  }
+}
+
+@media (min-width: 1440px) {
   .featuresBlock {
     padding: 44px 52px;
     background-color: var(--color-gray-soft);
@@ -245,8 +260,12 @@
 
 @media (min-width: 768px) {
   .wrapper {
-    border: 1px solid var(--color-gray-light);
-    border-radius: 10px;
+    padding: 14px 17px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .wrapper {
     padding: 44px 57px;
   }
 }

@@ -21,8 +21,10 @@ function AsideFilterView({ shown, total, isFetching }: Props) {
 
   return (
     <aside className={css.aside}>
-      <h3 className={css.locationTitle}>Location</h3>
-      <LocationBlock />
+      <div>
+        <h3 className={css.locationTitle}>Location</h3>
+        <LocationBlock />
+      </div>
 
       <div className={css.filters}>
         {isFetching ? (

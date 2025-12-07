@@ -3,9 +3,12 @@ import Link from 'next/link';
 import css from './Header.module.css';
 import IconComponent from '../Icon/Icon.component';
 import { usePathname } from 'next/navigation';
+import BurgerMenu from '../BurgerMenu/BurgerMenu';
+import { useState } from 'react';
 
 function Header() {
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header className={css.header}>
       <div className="container">
@@ -35,8 +38,12 @@ function Header() {
               </Link>
             </li>
           </ul>
+          <button className={css.burger} onClick={() => setMenuOpen(!menuOpen)} aria-label="Open menu">
+            <IconComponent name={menuOpen ? 'close' : 'menu'} size={24} />
+          </button>
           <div className={css.right}></div>
         </div>
+        <BurgerMenu menuOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       </div>
     </header>
   );

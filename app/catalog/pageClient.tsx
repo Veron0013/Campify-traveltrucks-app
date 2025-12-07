@@ -13,6 +13,7 @@ import css from './pageClient.module.css';
 import { useEffect, useState } from 'react';
 import { CamperData } from '../services/api/api.types';
 import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
+import FiltersModal from '../components/Filter/FiltersModal';
 
 function CatalogClientPage() {
   const filters = useCamperFilters(s => s.filters);
@@ -20,6 +21,8 @@ function CatalogClientPage() {
 
   const [page, setPage] = useState(1);
   const [campers, setAllCampers] = useState<CamperData[]>([]);
+
+  const [open, setOpen] = useState(false);
 
   const { data, isFetching, isError } = useQuery({
     queryKey: ['TrackListFiltered', filters, page],
@@ -71,28 +74,38 @@ function CatalogClientPage() {
   }
 
   return (
-    <>
-      <section className="container">
-        <div className={css.pageLayout}>
-          <AsideFilterView total={data?.total || 0} shown={campers.length} isFetching={isFetching} />
-          <div className={css.pageContainer}>
-            {!isFetching && campers.length === 0 && (
-              <MessageNoInfo
-                buttonText="Clear filters"
-                text="No campers found. Try to clear filters."
-                onClick={clearFilters}
-              />
-            )}
-            {campers && campers.length > 0 && <ListView items={campers} />}
-
-            {isFetching && <Loading />}
-            {data && campers.length < data?.total && (
-              <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
-            )}
-          </div>
+    <section className="container">
+      <div className={css.pageLayout}>
+        <div className={css.mobileFiltersButton}>
+          <Button type="button" label="Filters" variant="loadMore" onClick={() => setOpen(true)} />
         </div>
-      </section>
-    </>
+        <div className={css.desktopFilters}>
+          <AsideFilterView total={data?.total || 0} shown={campers.length} isFetching={isFetching} />
+        </div>
+        <div className={css.pageContainer}>
+          {!isFetching && campers.length === 0 && (
+            <MessageNoInfo
+              buttonText="Clear filters"
+              text="No campers found. Try to clear filters."
+              onClick={clearFilters}
+            />
+          )}
+          {campers && campers.length > 0 && <ListView items={campers} />}
+
+          {isFetching && <Loading />}
+          {data && campers.length < data?.total && (
+            <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
+          )}
+        </div>
+        <FiltersModal
+          open={open}
+          onClose={() => setOpen(false)}
+          shown={data?.total || 0}
+          total={campers.length}
+          isFetching={isFetching}
+        />
+      </div>
+    </section>
   );
 }
 

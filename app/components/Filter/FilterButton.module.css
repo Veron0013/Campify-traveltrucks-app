@@ -3,15 +3,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0px 6px;
-  gap: 10px;
+
+  width: 100%;
+  min-width: 80px;
+  height: 68px;
+
+  padding: 4px;
+  gap: 6px;
 
   border: 1px solid var(--color-gray-light);
-  border-radius: 12px;
-  min-width: 112px;
-  height: 96px;
+  border-radius: 10px;
 
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: -0.01em;
   text-align: center;
@@ -30,7 +33,13 @@
   border-color: var(--color-button);
 }
 
-/*.icon {
-  width: 20px;
-  height: 20px;
-}*/
+@media (min-width: 768px) {
+  .button {
+    min-width: 112px;
+    height: 96px;
+    padding: 0 6px;
+    gap: 10px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+}
