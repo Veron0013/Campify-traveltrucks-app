@@ -37,7 +37,8 @@ export default function RootLayout({
           <div className="layout">
             <Suspense fallback={<Loading />}>
               <Header />
-              {children}
+              <main>{children}</main>
+              <Footer />
             </Suspense>
             <ScrollToTop />
           </div>

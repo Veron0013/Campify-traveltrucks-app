@@ -13,7 +13,6 @@ import css from './pageClient.module.css';
 import { useEffect, useState } from 'react';
 import { CamperData } from '../services/api/api.types';
 import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
-import Footer from '../components/Footer/Footer';
 
 function CatalogClientPage() {
   const filters = useCamperFilters(s => s.filters);
@@ -61,7 +60,7 @@ function CatalogClientPage() {
     fetchPages();
   }, [filters]);
 
-  if (isError) {
+  if (isError && !filters) {
     return (
       <div className="container">
         <div className={css.pageLayout}>
@@ -93,7 +92,6 @@ function CatalogClientPage() {
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 }

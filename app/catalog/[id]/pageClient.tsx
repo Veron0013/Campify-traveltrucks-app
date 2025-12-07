@@ -12,7 +12,6 @@ import { useState } from 'react';
 import FeaturesList from '@/app/components/ListItemDetails/ListItemComponents/FeaturesList';
 import ReviewsList from '@/app/components/ListItemDetails/ListItemComponents/ReviewsList';
 import { BookingForm } from '@/app/components/ListItemDetails/ListItemComponents/BookingForm';
-import Footer from '@/app/components/Footer/Footer';
 
 function CamperDetailsClient() {
   const { id } = useParams<{ id: string }>();
@@ -79,7 +78,6 @@ function CamperDetailsClient() {
           </div>
         </div>
       </section>
-      <Footer />
     </>
   );
 }

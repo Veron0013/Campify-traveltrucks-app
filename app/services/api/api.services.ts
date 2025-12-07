@@ -7,7 +7,11 @@ export const getCamperList = async (searchParams: CamperFilterData): Promise<Cam
   return response.data;
 };
 
-export const getCamperById = async (id: string): Promise<CamperData> => {
-  const response = await mainApi.get(`/campers/${id}`);
-  return response.data;
+export const getCamperById = async (id: string): Promise<CamperData | null> => {
+  try {
+    const response = await mainApi.get(`/campers/${id}`);
+    return response.data;
+  } catch {
+    return null;
+  }
 };

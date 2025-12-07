@@ -1,6 +1,5 @@
 .hero {
 	width: 100%;
-	height: calc(100vh - 72px);
 	background-image: image-set(url('/img/hero@1.webp') 1x,
 			url('/img/hero@2.webp') 2x);
 	background-size: cover;
@@ -35,6 +34,10 @@
 }
 
 @media (min-width: 768px) {
+	.hero {
+		height: calc(100vh - 72px);
+	}
+
 	.title_wrapper {
 		margin-bottom: 40px;
 		min-width: 100%;

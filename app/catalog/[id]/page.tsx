@@ -2,6 +2,7 @@ import { getCamperById } from '@/app/services/api/api.services';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { Metadata } from 'next';
 import CamperDetailsClient from './pageClient';
+import { notFound } from 'next/navigation';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
@@ -25,6 +26,13 @@ async function fetchCamper(id: string, queryClient?: QueryClient) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const camper = await fetchCamper(id);
+
+  if (!camper) {
+    return {
+      title: 'Campify: Camper not found',
+      description: 'The requested camper does not exist.',
+    };
+  }
 
   const title = camper.name ? `Campify: ${camper.name}` : 'Campify: camper details';
   const description = camper.description ? camper.description : 'About camper';
@@ -59,7 +67,11 @@ async function CamperPage({ params }: PageProps) {
   const { id } = await params;
   const queryClient = new QueryClient();
 
-  await fetchCamper(id, queryClient);
+  const camper = await fetchCamper(id, queryClient);
+
+  if (!camper) {
+    notFound();
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
