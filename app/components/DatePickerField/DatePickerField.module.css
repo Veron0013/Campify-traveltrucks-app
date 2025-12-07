@@ -27,9 +27,9 @@
 
 /*//////////////*/
 /*calendar*/
-.dateInput:focus {
+/*.dateInput:focus {
 	outline: 2px solid var(--foreground);
-}
+}*/
 
 .datePopup {
 	position: absolute;

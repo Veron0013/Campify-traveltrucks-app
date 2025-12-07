@@ -38,7 +38,11 @@ function Header() {
               </Link>
             </li>
           </ul>
-          <button className={css.burger} onClick={() => setMenuOpen(!menuOpen)} aria-label="Open menu">
+          <button
+            className={css.burger}
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          >
             <IconComponent name={menuOpen ? 'close' : 'menu'} size={24} />
           </button>
           <div className={css.right}></div>

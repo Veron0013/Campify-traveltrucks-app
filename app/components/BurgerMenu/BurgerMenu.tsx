@@ -2,7 +2,6 @@
 import Link from 'next/link';
 import css from './BurgerMenu.module.css';
 import { usePathname } from 'next/navigation';
-import IconComponent from '../Icon/Icon.component';
 
 interface BurgerMenuProps {
   menuOpen: boolean;

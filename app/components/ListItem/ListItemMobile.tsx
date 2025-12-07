@@ -21,7 +21,7 @@ export default function ListItemMobile({ item }: ItemProps) {
     <article className={css.card}>
       <Link href={`/catalog/${item.id}`}>
         <div className={css.imageBox}>
-          <Image src={item.gallery[0].thumb} alt={item.name} fill className={css.image} />
+          <Image src={item.gallery[0].thumb} alt={item.name} fill className={css.image} loading="lazy" />
 
           <h3 className={css.title}>{item.name}</h3>
 

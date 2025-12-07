@@ -93,15 +93,16 @@ function CatalogClientPage() {
           {campers && campers.length > 0 && <ListView items={campers} />}
 
           {isFetching && <Loading />}
-          {data && campers.length < data?.total && (
+
+          {data && campers.length < data?.total && !isFetching && (
             <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
           )}
         </div>
         <FiltersModal
           open={open}
           onClose={() => setOpen(false)}
-          shown={data?.total || 0}
-          total={campers.length}
+          shown={campers.length}
+          total={data?.total || 0}
           isFetching={isFetching}
         />
       </div>
