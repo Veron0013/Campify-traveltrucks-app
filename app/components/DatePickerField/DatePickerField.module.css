@@ -25,7 +25,6 @@
 	color: rgba(0, 0, 0, 0.55)
 }
 
-
 /*//////////////*/
 /*calendar*/
 .dateInput:focus {
@@ -39,7 +38,7 @@
 	background: var(--background);
 	border: 1px solid var(--foreground);
 	border-radius: 16px;
-	padding: 16px;
+	padding: 12px;
 	width: 276px;
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
@@ -56,12 +55,10 @@
 	border-top: 1px solid var(--foreground);
 }
 
-
 .calendar {
 	--rdp-accent-color: var(--color-primary-light);
 	--rdp-accent-background-color: var(--color-primary-light);
 	--rdp-outline: none;
-
 	font-family: inherit;
 }
 
@@ -82,11 +79,10 @@
 }
 
 :global(.rdp-nav_button:hover) {
-	opacity: 0.7;
+	opacity: .7;
 }
 
 :global(.rdp-head_row) {
-	font-family: "Inter", sans-serif;
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	padding-bottom: 12px;
@@ -108,7 +104,6 @@
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	margin-bottom: 4px;
-
 }
 
 :global(.rdp-day_button) {
@@ -125,18 +120,15 @@
 	cursor: pointer;
 }
 
-/* Ховер */
 :global(.rdp-day_button:hover) {
 	background: var(--color-primary-light);
 	color: var(--background);
 }
 
-/* OUTSIDE DAYS */
 :global(.rdp-day_outside .rdp-day_button) {
 	color: var(--color-primary);
 }
 
-/* SELECTED DAY */
 :global(.rdp-day.rdp-selected .rdp-day_button) {
 	background: var(--color-primary) !important;
 	color: white !important;
@@ -144,10 +136,8 @@
 }
 
 :global(.rdp-footer) {
-	padding: 12px 16px;
+	padding: 4px 16px;
 	color: var(--color-primary);
 	font-size: 14px;
-	border-top: 1px solid rgba(255, 255, 255, 0.15);
-	border-radius: 0 0 8px 8px;
 	text-align: center;
 }
