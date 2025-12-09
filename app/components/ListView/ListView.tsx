@@ -1,14 +1,25 @@
 'use client';
-import { CamperData } from '@/app/services/api/api.types';
+
+import { CamperData, CampersResponse } from '@/app/services/api/api.types';
 import css from './ListView.module.css';
 import { useIsMobile } from '@/app/lib/hooks/useIsMobile';
 import dynamic from 'next/dynamic';
+import { memo } from 'react';
 
 type Props = {
-  items: CamperData[];
+  items: CampersResponse[]; // pages[]
+  params: unknown[];
 };
 
-function ListView({ items }: Props) {
+type PageListProps = {
+  page: CampersResponse;
+  isMobile: boolean;
+};
+
+// -------------------
+// Memo-компонент UL
+// -------------------
+const PageList = memo(function PageList({ page, isMobile }: PageListProps) {
   const ListItemMobile = dynamic(() => import('../ListItem/ListItemMobile'), {
     ssr: false,
   });
@@ -16,18 +27,27 @@ function ListView({ items }: Props) {
     ssr: false,
   });
 
+  return (
+    <ul className={css.listStyle}>
+      {page.items.map((item: CamperData) => (
+        <li key={item.id} id={item.id.toString()}>
+          {isMobile ? <ListItemMobile item={item} /> : <ListItemDesktop item={item} />}
+        </li>
+      ))}
+    </ul>
+  );
+});
+
+function ListView({ items, params }: Props) {
   const isMobile = useIsMobile(1440);
+
   return (
     <div>
-      <ul className={css.listStyle}>
-        {items.map((item: CamperData) => {
-          return (
-            <li key={item.id} id={item.id.toString()}>
-              {isMobile ? <ListItemMobile item={item} /> : <ListItemDesktop item={item} />}
-            </li>
-          );
-        })}
-      </ul>
+      {items.map((page, pageIndex) => {
+        const key = Number(params?.[pageIndex] ?? pageIndex);
+
+        return <PageList key={key} page={page} isMobile={isMobile} />;
+      })}
     </div>
   );
 }
