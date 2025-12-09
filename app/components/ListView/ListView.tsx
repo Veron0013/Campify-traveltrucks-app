@@ -1,5 +1,4 @@
 'use client';
-
 import { CamperData, CampersResponse } from '@/app/services/api/api.types';
 import css from './ListView.module.css';
 import { useIsMobile } from '@/app/lib/hooks/useIsMobile';
@@ -7,26 +6,19 @@ import dynamic from 'next/dynamic';
 import { memo } from 'react';
 
 type Props = {
-  items: CampersResponse[]; // pages[]
-  params: unknown[];
+  items: (CampersResponse | CamperData)[];
+  params?: unknown[];
 };
 
-type PageListProps = {
-  page: CampersResponse;
-  isMobile: boolean;
-};
+const ListItemMobile = dynamic(() => import('../ListItem/ListItemMobile'), {
+  ssr: false,
+});
+const ListItemDesktop = dynamic(() => import('../ListItem/ListItem'), {
+  ssr: false,
+});
 
-// -------------------
-// Memo-компонент UL
-// -------------------
-const PageList = memo(function PageList({ page, isMobile }: PageListProps) {
-  const ListItemMobile = dynamic(() => import('../ListItem/ListItemMobile'), {
-    ssr: false,
-  });
-  const ListItemDesktop = dynamic(() => import('../ListItem/ListItem'), {
-    ssr: false,
-  });
-
+// ---- memo-сторінка для infinite режиму ----
+const PageList = memo(function PageList({ page, isMobile }: { page: CampersResponse; isMobile: boolean }) {
   return (
     <ul className={css.listStyle}>
       {page.items.map((item: CamperData) => (
@@ -41,9 +33,30 @@ const PageList = memo(function PageList({ page, isMobile }: PageListProps) {
 function ListView({ items, params }: Props) {
   const isMobile = useIsMobile(1440);
 
+  if (!items || items.length === 0) return null;
+  const isPaged = 'items' in (items[0] as CampersResponse);
+
+  // ---- РЕЖИМ FAVORITES: плоский масив CamperData[] ----
+  if (!isPaged) {
+    const campers = items as CamperData[];
+
+    return (
+      <ul className={css.listStyle}>
+        {campers.map(item => (
+          <li key={item.id} id={item.id.toString()}>
+            {isMobile ? <ListItemMobile item={item} /> : <ListItemDesktop item={item} />}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  // ---- РЕЖИМ CATALOG: сторінки (CampersResponse[]) ----
+  const pages = items as CampersResponse[];
+
   return (
     <div>
-      {items.map((page, pageIndex) => {
+      {pages.map((page, pageIndex) => {
         const key = Number(params?.[pageIndex] ?? pageIndex);
 
         return <PageList key={key} page={page} isMobile={isMobile} />;
