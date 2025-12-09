@@ -1,33 +1,66 @@
 'use client';
-import { CamperData } from '@/app/services/api/api.types';
+import { CamperData, CampersResponse } from '@/app/services/api/api.types';
 import css from './ListView.module.css';
 import { useIsMobile } from '@/app/lib/hooks/useIsMobile';
 import dynamic from 'next/dynamic';
+import { memo } from 'react';
 
 type Props = {
-  items: CamperData[];
+  items: (CampersResponse | CamperData)[];
+  params?: unknown[];
 };
 
-function ListView({ items }: Props) {
-  const ListItemMobile = dynamic(() => import('../ListItem/ListItemMobile'), {
-    ssr: false,
-  });
-  const ListItemDesktop = dynamic(() => import('../ListItem/ListItem'), {
-    ssr: false,
-  });
+const ListItemMobile = dynamic(() => import('../ListItem/ListItemMobile'), {
+  ssr: false,
+});
+const ListItemDesktop = dynamic(() => import('../ListItem/ListItem'), {
+  ssr: false,
+});
 
+// ---- memo-сторінка для infinite режиму ----
+const PageList = memo(function PageList({ page, isMobile }: { page: CampersResponse; isMobile: boolean }) {
+  return (
+    <ul className={css.listStyle}>
+      {page.items.map((item: CamperData) => (
+        <li key={item.id} id={item.id.toString()}>
+          {isMobile ? <ListItemMobile item={item} /> : <ListItemDesktop item={item} />}
+        </li>
+      ))}
+    </ul>
+  );
+});
+
+function ListView({ items, params }: Props) {
   const isMobile = useIsMobile(1440);
+
+  if (!items || items.length === 0) return null;
+  const isPaged = 'items' in (items[0] as CampersResponse);
+
+  // ---- РЕЖИМ FAVORITES: плоский масив CamperData[] ----
+  if (!isPaged) {
+    const campers = items as CamperData[];
+
+    return (
+      <ul className={css.listStyle}>
+        {campers.map(item => (
+          <li key={item.id} id={item.id.toString()}>
+            {isMobile ? <ListItemMobile item={item} /> : <ListItemDesktop item={item} />}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  // ---- РЕЖИМ CATALOG: сторінки (CampersResponse[]) ----
+  const pages = items as CampersResponse[];
+
   return (
     <div>
-      <ul className={css.listStyle}>
-        {items.map((item: CamperData) => {
-          return (
-            <li key={item.id} id={item.id.toString()}>
-              {isMobile ? <ListItemMobile item={item} /> : <ListItemDesktop item={item} />}
-            </li>
-          );
-        })}
-      </ul>
+      {pages.map((page, pageIndex) => {
+        const key = Number(params?.[pageIndex] ?? pageIndex);
+
+        return <PageList key={key} page={page} isMobile={isMobile} />;
+      })}
     </div>
   );
 }

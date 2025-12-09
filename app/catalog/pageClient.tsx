@@ -2,7 +2,7 @@
 
 import { getCamperList } from '../services/api/api.services';
 import toastMessage, { MyToastType } from '../services/messageService';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import MessageNoInfo from '../components/MessageNoInfo/MessageNoInfo';
 import Loading from '../loading';
 import ListView from '../components/ListView/ListView';
@@ -11,7 +11,6 @@ import { useCamperFilters } from '../stores/camperFiltersStore';
 import { Button } from '../components/Button/Button';
 import css from './pageClient.module.css';
 import { useEffect, useState } from 'react';
-import { CamperData } from '../services/api/api.types';
 import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
 import FiltersModal from '../components/Filter/FiltersModal';
 
@@ -19,49 +18,41 @@ function CatalogClientPage() {
   const filters = useCamperFilters(s => s.filters);
   const clearFilters = useCamperFilters(s => s.clearFilters);
 
-  const [page, setPage] = useState(1);
-  const [campers, setAllCampers] = useState<CamperData[]>([]);
+  const [shown, setShown] = useState(0);
+  const [total, setTotal] = useState(0);
 
   const [open, setOpen] = useState(false);
 
-  const { data, isFetching, isError } = useQuery({
-    queryKey: ['TrackListFiltered', filters, page],
-    queryFn: async () => {
-      const res = await getCamperList({ ...filters, page, limit: LIMIT });
+  const { data, isFetching, isError, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ['TrackListFiltered', filters],
+    queryFn: async ({ pageParam = 1 }) => {
+      const res = await getCamperList({ ...filters, page: pageParam, limit: LIMIT });
       if (!res) toastMessage(MyToastType.error, 'bad request');
       return res;
     },
     refetchOnMount: false,
     placeholderData: keepPreviousData,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.reduce((acc, p) => acc + p.items.length, 0);
+
+      if (loaded >= lastPage.total) return undefined;
+      return allPages.length + 1;
+    },
   });
 
   useEffect(() => {
+    if (!data?.pages) return;
     const fetchData = async () => {
-      if (!data) {
-        setAllCampers([]);
-        return;
-      }
+      const firstPage = data.pages[0];
+      const t = firstPage?.total ?? 0;
+      const s = data.pages.reduce((acc, p) => acc + p.items.length, 0);
 
-      if (page === 1) {
-        setAllCampers(data.items);
-      } else {
-        //bad indexes
-        setAllCampers(prev => {
-          const merged = [...prev, ...data.items];
-          const unique = merged.filter((camper, index, self) => index === self.findIndex(c => c.id === camper.id));
-          return unique;
-        });
-      }
+      setTotal(t);
+      setShown(s);
     };
     fetchData();
-  }, [data, page]);
-
-  useEffect(() => {
-    const fetchPages = async () => {
-      setPage(1);
-    };
-    fetchPages();
-  }, [filters]);
+  }, [data]);
 
   if (isError && !filters) {
     return (
@@ -80,31 +71,26 @@ function CatalogClientPage() {
           <Button type="button" label="Filters" variant="loadMore" onClick={() => setOpen(true)} />
         </div>
         <div className={css.desktopFilters}>
-          <AsideFilterView total={data?.total || 0} shown={campers.length} isFetching={isFetching} />
+          <AsideFilterView total={total || 0} shown={shown} isFetching={isFetching} />
         </div>
         <div className={css.pageContainer}>
-          {!isFetching && campers.length === 0 && (
+          {!isFetching && !data?.pages && (
             <MessageNoInfo
               buttonText="Clear filters"
               text="No campers found. Try to clear filters."
               onClick={clearFilters}
             />
           )}
-          {campers && campers.length > 0 && <ListView items={campers} />}
+
+          {data?.pages && <ListView items={data.pages} params={data.pageParams} />}
 
           {isFetching && <Loading />}
 
-          {data && campers.length < data?.total && !isFetching && (
-            <Button type="button" label="Load more" variant="loadMore" onClick={() => setPage(p => p + 1)} />
+          {data?.pages && hasNextPage && (
+            <Button type="button" label="Load more" variant="loadMore" onClick={fetchNextPage} />
           )}
         </div>
-        <FiltersModal
-          open={open}
-          onClose={() => setOpen(false)}
-          shown={campers.length}
-          total={data?.total || 0}
-          isFetching={isFetching}
-        />
+        <FiltersModal open={open} onClose={() => setOpen(false)} shown={shown} total={total} isFetching={isFetching} />
       </div>
     </section>
   );
