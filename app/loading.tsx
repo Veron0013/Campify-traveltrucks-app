@@ -2,8 +2,9 @@
 
 import { ScaleLoader } from 'react-spinners';
 import css from './Loader.module.css';
-import type { CSSProperties } from 'react';
+import { useEffect, type CSSProperties } from 'react';
 import { LOADING_MAIN_MESSAGE } from './lib/vars';
+import { useCampersStore } from './stores/campersListStore';
 
 const Loading = () => {
   const override: CSSProperties = {
@@ -12,10 +13,18 @@ const Loading = () => {
     borderColor: '#17862c',
   };
 
-  //console.log("load")
+  const setListLoading = useCampersStore(s => s.setListLoading);
+
+  useEffect(() => {
+    setListLoading(true);
+    return () => {
+      setListLoading(false);
+    };
+  }, [setListLoading]);
 
   return (
-    <div className={css.wrapper}>
+    //<div className={`${css.wrapper} ${css.fullWrapp}`}>
+    <div className={`${css.wrapper}`}>
       <ScaleLoader
         color="#475467"
         loading={true}

@@ -13,6 +13,7 @@ import css from './pageClient.module.css';
 import { useEffect, useState } from 'react';
 import { ERROR_MAIN_MESSAGE, LIMIT } from '../lib/vars';
 import FiltersModal from '../components/Filter/FiltersModal';
+import { useCampersStore } from '../stores/campersListStore';
 
 function CatalogClientPage() {
   const filters = useCamperFilters(s => s.filters);
@@ -20,6 +21,7 @@ function CatalogClientPage() {
 
   const [shown, setShown] = useState(0);
   const [total, setTotal] = useState(0);
+  const listLoading = useCampersStore(s => s.listLoading);
 
   const [open, setOpen] = useState(false);
 
@@ -87,7 +89,7 @@ function CatalogClientPage() {
 
           {isFetching && <Loading />}
 
-          {data?.pages && hasNextPage && (
+          {!listLoading && !isFetching && data?.pages && hasNextPage && (
             <Button type="button" label="Load more" variant="loadMore" onClick={fetchNextPage} />
           )}
         </div>

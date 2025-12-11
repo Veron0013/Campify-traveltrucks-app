@@ -7,6 +7,9 @@ interface CampersStore {
   visibleCount: number;
   isPaginationLoading: boolean;
 
+  listLoading: boolean;
+  setListLoading: (flag: boolean) => void;
+
   startLoading: () => void;
   finishLoading: () => void;
 
@@ -40,6 +43,10 @@ export const useCampersStore = create<CampersStore>()(
         set(state => ({
           visibleCount: state.visibleCount + count,
         })),
+
+      listLoading: true,
+
+      setListLoading: flag => set({ listLoading: flag }),
     }),
 
     {
