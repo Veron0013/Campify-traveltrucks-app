@@ -80,6 +80,7 @@ export function DatePickerField({ value, onChange, error, touched }: Props) {
           <div className={css.popupArrow}></div>
 
           <DayPicker
+            navLayout="around"
             mode="single"
             selected={value ? new Date(value) : undefined}
             onSelect={handleSelect}

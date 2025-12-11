@@ -70,7 +70,14 @@ export function BookingForm({ camper }: Props) {
             </div>
 
             <div className={css.fieldWrapper}>
-              <Field as="textarea" id="comment" className={css.input} name="comment" placeholder="Comment" rows={6} />
+              <Field
+                as="textarea"
+                id="comment"
+                className={`${css.input} ${css.noResize}`}
+                name="comment"
+                placeholder="Comment"
+                rows={6}
+              />
               <ErrorMessage name="comment" component="div" className={css.error} />
             </div>
 

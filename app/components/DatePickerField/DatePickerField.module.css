@@ -59,6 +59,9 @@
 	--rdp-accent-color: var(--color-primary-light);
 	--rdp-accent-background-color: var(--color-primary-light);
 	--rdp-outline: none;
+	--rdp-day-width: 28px;
+	--rdp-day-height: 28px;
+
 	font-family: inherit;
 }
 
