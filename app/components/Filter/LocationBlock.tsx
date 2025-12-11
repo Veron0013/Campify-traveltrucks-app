@@ -35,7 +35,7 @@ export default function LocationBlock() {
       <input
         type="text"
         className={css.input}
-        placeholder="Country, City"
+        placeholder="City"
         value={inputValue}
         onChange={e => setInputValue(e.target.value)}
       />

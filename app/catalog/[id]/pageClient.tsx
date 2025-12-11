@@ -45,7 +45,7 @@ function CamperDetailsClient() {
   }
 
   return (
-    <section className="container">
+    <div className="container">
       <div className={css.pageLayout}>
         <div className={css.headerBlock}>
           <CamperHeader item={camper} />
@@ -76,7 +76,7 @@ function CamperDetailsClient() {
           <BookingForm camper={camper} />
         </div>
       </div>
-    </section>
+    </div>
   );
 }
 

@@ -7,7 +7,7 @@ import { useFavoritesStore } from '../stores/campersFavoritesStore';
 function FavoritesClientPage() {
   const favoriteCampers = useFavoritesStore(s => s.favorites);
   return (
-    <section className="container">
+    <div className="container">
       <div className={css.pageLayout}>
         {favoriteCampers.length === 0 && (
           <MessageNoInfo
@@ -18,7 +18,7 @@ function FavoritesClientPage() {
         )}
         {favoriteCampers.length > 0 && <ListView items={favoriteCampers} />}
       </div>
-    </section>
+    </div>
   );
 }
 

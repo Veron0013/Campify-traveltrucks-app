@@ -20,7 +20,7 @@ const NotFound = () => {
   return (
     <div className="container">
       <div className={css.NotFoundContainer}>
-        <h1 className={css.NotFoundTitle}>OOPS!!!</h1>
+        <h2 className={css.NotFoundTitle}>OOPS!!!</h2>
         <p className={css.NotFoundTitle}>404</p>
         <h3 className={css.NotFoundDescr}>Page not found</h3>
         <p className={css.NotFoundText}>try go Home Page</p>

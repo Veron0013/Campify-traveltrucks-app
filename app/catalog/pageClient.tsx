@@ -25,6 +25,7 @@ function CatalogClientPage() {
 
   const { data, isFetching, isError, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['TrackListFiltered', filters],
+    retry: 0,
     queryFn: async ({ pageParam = 1 }) => {
       const res = await getCamperList({ ...filters, page: pageParam, limit: LIMIT });
       if (!res) toastMessage(MyToastType.error, 'bad request');
@@ -65,7 +66,7 @@ function CatalogClientPage() {
   }
 
   return (
-    <section className="container">
+    <div className="container">
       <div className={css.pageLayout}>
         <div className={css.mobileFiltersButton}>
           <Button type="button" label="Filters" variant="loadMore" onClick={() => setOpen(true)} />
@@ -92,7 +93,7 @@ function CatalogClientPage() {
         </div>
         <FiltersModal open={open} onClose={() => setOpen(false)} shown={shown} total={total} isFetching={isFetching} />
       </div>
-    </section>
+    </div>
   );
 }
 
