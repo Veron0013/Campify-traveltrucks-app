@@ -9,6 +9,7 @@ import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
 import { FeatureTag } from '../FeatureTag/FeatureTag';
 import { useFavoritesStore } from '@/app/stores/campersFavoritesStore';
 import { CamperData } from '@/app/services/api/api.types';
+import { createFavoriteHandler } from '@/app/services/animateFavorites';
 
 interface ItemProps {
   item: CamperData;
@@ -17,11 +18,20 @@ interface ItemProps {
 export default function ListItemMobile({ item }: ItemProps) {
   const { toggleFavorite, isFavorite } = useFavoritesStore();
 
+  const handleFavClick = createFavoriteHandler(isFavorite, toggleFavorite);
+
   return (
     <article className={css.card}>
       <Link href={`/catalog/${item.id}`}>
         <div className={css.imageBox}>
-          <Image src={item.gallery[0].thumb} alt={item.name} fill className={css.image} loading="lazy" />
+          <Image
+            src={item.gallery[0].thumb}
+            alt={item.name}
+            fill
+            className={css.image}
+            loading="lazy"
+            data-fav-image="image"
+          />
 
           <h3 className={css.title}>{item.name}</h3>
 
@@ -46,7 +56,7 @@ export default function ListItemMobile({ item }: ItemProps) {
         <IconComponent
           name={isFavorite(item.id) ? 'heart-filled' : 'heart'}
           size={40}
-          onClick={() => toggleFavorite(item)}
+          onClick={e => handleFavClick(item, e)}
         />
       </div>
 

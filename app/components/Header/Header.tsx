@@ -18,26 +18,29 @@ function Header() {
               <use href="/icons/mainLogo.svg"></use>
             </svg>
           </Link>
-          <ul className={css.nav_list}>
-            <li className={css.nav_list_item}>
-              <Link className={`${css.nav_list_item_link} ${pathname === '/' ? css.nav_active : ''}`} href="/">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                className={`${css.nav_list_item_link} ${pathname === '/catalog' ? css.nav_active : ''}`}
-                href="/catalog"
-              >
-                Catalog
-              </Link>
-            </li>
-            <li>
-              <Link href="/favorites">
-                <IconComponent name="heart-filled" size={20} />
-              </Link>
-            </li>
-          </ul>
+          <div className={css.nav_list_wrapper}>
+            <ul className={css.nav_list}>
+              <li className={css.nav_list_item}>
+                <Link className={`${css.nav_list_item_link} ${pathname === '/' ? css.nav_active : ''}`} href="/">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={`${css.nav_list_item_link} ${pathname === '/catalog' ? css.nav_active : ''}`}
+                  href="/catalog"
+                >
+                  Catalog
+                </Link>
+              </li>
+              <li>
+                <Link href="/favorites">
+                  <IconComponent name="heart-filled" size={20} />
+                </Link>
+              </li>
+            </ul>
+            <div className={css.favBlock} data-fav-button="header-fav"></div>
+          </div>
           <button
             className={css.burger}
             onClick={() => setMenuOpen(!menuOpen)}

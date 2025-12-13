@@ -23,6 +23,12 @@
   display: none;
 }
 
+.favBlock {
+  align-self: flex-end;
+  width: 0px;
+  height: 0px;
+}
+
 .burger {
   display: flex;
   align-items: center;

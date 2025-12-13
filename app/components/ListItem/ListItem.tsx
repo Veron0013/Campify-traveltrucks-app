@@ -7,6 +7,7 @@ import { Button } from '../Button/Button';
 import { CARD_FEATURES_CONFIG } from '@/app/types/filter.types';
 import { FeatureTag } from '../FeatureTag/FeatureTag';
 import { useFavoritesStore } from '@/app/stores/campersFavoritesStore';
+import { createFavoriteHandler } from '@/app/services/animateFavorites';
 
 interface ItemProps {
   item: CamperData;
@@ -14,6 +15,8 @@ interface ItemProps {
 
 function ListItem({ item }: ItemProps) {
   const { toggleFavorite, isFavorite } = useFavoritesStore();
+
+  const handleFavClick = createFavoriteHandler(isFavorite, toggleFavorite);
 
   return (
     <article className={css.card} data-card="camper-card">
@@ -26,6 +29,7 @@ function ListItem({ item }: ItemProps) {
             height={320}
             className={css.cardImg}
             loading="lazy"
+            data-fav-image="image"
           />
         </div>
       </Link>
@@ -37,8 +41,8 @@ function ListItem({ item }: ItemProps) {
             <p className={css.cardPrice}>{`€${item.price.toFixed(2)}`}</p>
             <IconComponent
               name={isFavorite(item.id) ? 'heart-filled' : 'heart'}
-              size={20}
-              onClick={() => toggleFavorite(item)}
+              size={40}
+              onClick={e => handleFavClick(item, e)}
             />
           </div>
         </div>

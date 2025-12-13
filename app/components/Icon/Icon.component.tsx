@@ -2,7 +2,7 @@ interface IconProps {
   name: string;
   size: number;
   isMap?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<SVGElement | HTMLButtonElement>) => void;
 }
 export function IconComponent({ name, size = 20, isMap, onClick }: IconProps) {
   const href = isMap ? `/icons/map.svg` : `/icons/icons.svg#${name}`;
