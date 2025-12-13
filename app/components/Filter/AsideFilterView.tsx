@@ -1,6 +1,6 @@
 'use client';
 
-import { CamperForm } from '@/app/services/api/api.types';
+import { CamperForm, Transmission } from '@/app/services/api/api.types';
 import css from './AsideFilterView.module.css';
 import { FeatureConfig, FeatureKey, FILTERS_CONFIG, FORM_CONFIG } from '@/app/types/filter.types';
 import FilterButton from './FilterButton';
@@ -18,6 +18,16 @@ function AsideFilterView({ shown, total, isFetching }: Props) {
   const filters = useCamperFilters(s => s.filters);
   const setFilter = useCamperFilters(s => s.setFilter);
   const clearFilters = useCamperFilters(s => s.clearFilters);
+
+  const handleFiltefrClick = (value: Transmission) => {
+    console.log(filters.transmission);
+    if (filters.transmission === value) {
+      setFilter('transmission', undefined);
+      return;
+    }
+
+    setFilter('transmission', value);
+  };
 
   return (
     <aside className={css.aside}>
@@ -38,6 +48,24 @@ function AsideFilterView({ shown, total, isFetching }: Props) {
           <div className={css.divider}></div>
 
           <div className={css.grid}>
+            <FilterButton
+              key="transmissionAutomatic"
+              icon="automatic"
+              label="Automatic"
+              active={filters.transmission === 'automatic'}
+              onClick={() => {
+                handleFiltefrClick(Transmission.AUTOMATIC);
+              }}
+            />
+            <FilterButton
+              key="transmissionManual"
+              icon="manual"
+              label="Manual"
+              active={filters.transmission === 'manual'}
+              onClick={() => {
+                handleFiltefrClick(Transmission.MANUAL);
+              }}
+            />
             {(Object.entries(FILTERS_CONFIG) as [FeatureKey, FeatureConfig][]).map(([key, cfg]) => (
               <FilterButton
                 key={key}
